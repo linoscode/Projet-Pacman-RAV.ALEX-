@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include "./partie.h"
+#include "./comp_jeu.h"
 
 #define haut 0
 #define droite 1
