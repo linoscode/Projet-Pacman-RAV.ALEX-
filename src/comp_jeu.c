@@ -8,7 +8,7 @@
 
 Pos deplacer_pacman(Partie p,char **plateau,int direction) {
 	plateau[p.pacman.l][p.pacman.c]=' ';//On efface pacman de son ancien emplacement
-	//On dessine pacman dans la direction donné
+	//On dessine pacman dans la direction donné si il n'y a pas de mur dans cette direction
 	if(direction==haut && plateau[p.pacman.l-1][p.pacman.c]!='#') {
 			p.pacman.l--;
 			plateau[p.pacman.l][p.pacman.c]='P';
@@ -26,6 +26,20 @@ Pos deplacer_pacman(Partie p,char **plateau,int direction) {
 			plateau[p.pacman.l][p.pacman.c]!='P';
 			return p.pacman;
 	}
+}
+
+int nbpacgommes(Partie p) {
+	for(int i=0; i<p.L;i++)
+	{
+		for(int j=0;j<p.C;j++)
+		{
+			if(p.plateau[i][j]=='.')
+			{
+				p.nbbonus++;
+			}
+		}
+	}
+	return p.nbbonus;
 }
 
 
