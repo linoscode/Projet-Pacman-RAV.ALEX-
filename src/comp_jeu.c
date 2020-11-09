@@ -30,6 +30,7 @@ Pos deplacer_pacman(Partie p,char **plateau,int direction) {
 		plateau[p.pacman.l][p.pacman.c]='P';
 		return p.pacman;
 	}
+	return p.pacman;
 }
 
 int nbpacgommes(Partie p) {
