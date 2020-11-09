@@ -9,19 +9,19 @@
 Pos deplacer_pacman(Partie p,char **plateau,int direction) {
 	plateau[p.pacman.l][p.pacman.c]=' ';//On efface pacman de son ancien emplacement
 	//On dessine pacman dans la direction donné
-	if(direction==haut) {
+	if(direction==haut && plateau[p.pacman.l-1][p.pacman.c]!='*') {
 		p.pacman.l--;
 		plateau[p.pacman.l][p.pacman.c]='P';
 		return p.pacman;
-	} else if (direction==droite) {
+	} else if (direction==droite && plateau[p.pacman.l][p.pacman.c+1]!='*') {
 		p.pacman.c++;
 		plateau[p.pacman.l][p.pacman.c]='P';
 		return p.pacman;
-	} else if (direction==bas) {
+	} else if (direction==bas && plateau[p.pacman.l+1][p.pacman.c]!='*') {
 		p.pacman.l++;
 		plateau[p.pacman.l][p.pacman.c]='P';
 		return p.pacman;
-	} else if (direction==gauche) {
+	} else if (direction==gauche && plateau[p.pacman.l][p.pacman.c-1]!='*') {
 		p.pacman.c--;
 		plateau[p.pacman.l][p.pacman.c]='P';
 		return p.pacman;
