@@ -1,35 +1,55 @@
 #include "./comp_jeu.h"
 
-#define haut 0
-#define droite 1
-#define bas 2
-#define gauche 3
 
-
-Pos deplacer_pacman(Partie p,char **plateau,int direction) {
+Pos deplacer_pacman_plateau(Partie p,char **plateau,int direction) {
   //On efface pacman de son ancien emplacement
 	//On dessine pacman dans la direction donné
-	if(direction==haut && plateau[p.pacman.l-1][p.pacman.c]!='*') {
+	if(direction==haut && plateau[p.pacman.l-1][p.pacman.c]!='*')
+	{
 		plateau[p.pacman.l][p.pacman.c]=' ';
 		p.pacman.l--;
 		plateau[p.pacman.l][p.pacman.c]='P';
 		return p.pacman;
-	} else if (direction==droite && plateau[p.pacman.l][p.pacman.c+1]!='*') {
+	}
+
+	else if (direction==droite && plateau[p.pacman.l][p.pacman.c+1]!='*')
+	{
 		plateau[p.pacman.l][p.pacman.c]=' ';
-		p.pacman.c++;
-		plateau[p.pacman.l][p.pacman.c]='P';
+		if(p.pacman.c==p.C-1)
+		{
+			p.pacman.c=0;
+			plateau[p.pacman.l][p.pacman.c]='P';
+		}
+		else {
+			p.pacman.c++;
+			plateau[p.pacman.l][p.pacman.c]='P';
+		}
 		return p.pacman;
-	} else if (direction==bas && plateau[p.pacman.l+1][p.pacman.c]!='*') {
+	}
+
+	else if (direction==bas && plateau[p.pacman.l+1][p.pacman.c]!='*')
+	{
 		plateau[p.pacman.l][p.pacman.c]=' ';
 		p.pacman.l++;
 		plateau[p.pacman.l][p.pacman.c]='P';
 		return p.pacman;
-	} else if (direction==gauche && plateau[p.pacman.l][p.pacman.c-1]!='*') {
+	}
+
+	else if (direction==gauche && plateau[p.pacman.l][p.pacman.c-1]!='*')
+	{
 		plateau[p.pacman.l][p.pacman.c]=' ';
-		p.pacman.c--;
-		plateau[p.pacman.l][p.pacman.c]='P';
+		if(p.pacman.c==0)
+		{
+			p.pacman.c=p.C-1;
+			plateau[p.pacman.l][p.pacman.c]='P';
+		}
+		else {
+			p.pacman.c--;
+			plateau[p.pacman.l][p.pacman.c]='P';
+		}
 		return p.pacman;
 	}
+
 	return p.pacman;
 }
 
@@ -40,11 +60,11 @@ int nbpacgommes(Partie p) {
 		{
 			if(p.plateau[i][j]=='.')
 			{
-				p.nbbonus++;
+				p.nbpacgommes++;
 			}
 		}
 	}
-	return p.nbbonus;
+	return p.nbpacgommes;
 }
 
 

@@ -6,7 +6,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "./partie.h" // on a besoin de connaître la structure Partie
+#include "./partie.h"
+#include "../libgraphique.h" 
 
 #define DEBUG 1
 

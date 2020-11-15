@@ -22,8 +22,9 @@ typedef struct partie {
     int     L; // le nb de lignes du plateau de jeu
     int     C; // le nb de colonne du plateau de jeu
     Pos     pacman; // la position de Pacman dans le plateau
-    Pos     fantomes[NBFANTOMES]; // les positions de chaque fantôme
-    int     nbbonus; // le nombre de bonus restants à manger
+    Pos     fantomes[NBFANTOMES];
+    int     nbbonus; // les positions de chaque fantôme
+    int     nbpacgommes; // le nombre de bonus restants à manger
     // ...et vous pouvez ajouter tout ce dont vous avez besoin
     } Partie;
 
