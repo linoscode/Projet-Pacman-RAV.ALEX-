@@ -47,16 +47,38 @@ int main(int argc, char **argv)
 // Démarrage du jeu.
     ouvrir_fenetre(800,600);
     demarrage();
-    
+
     // Affichage du plateau.
     dessiner_plateau(p, p.plateau);
     actualiser();
-    
-    // Algorithme du jeu : 
-    
-    
+
+    // Algorithme du jeu :
+    int touche;
+    int dir;
+
+    while(touche != SDLK_ESCAPE)
+    {
+      touche = attendre_touche_duree(1);
+      switch ( touche )
+      {
+        case SDLK_UP:
+          dir = haut;
+          break;
+        case SDLK_LEFT:
+          dir = gauche;
+          break;
+        case SDLK_DOWN:
+          dir = bas;
+          break;
+        case SDLK_RIGHT:
+          dir = droite;
+          break;
+      }
+      p.pacman = deplacer_pacman_visuel(p, p.plateau, dir, MUR);
+    }
+
     // Fermeture du jeu.
     attendre_clic();
     fermer_fenetre();
-    return 0; 
+    return 0;
     }

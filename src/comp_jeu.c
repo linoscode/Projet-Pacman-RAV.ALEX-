@@ -28,24 +28,22 @@ Pos deplacer_pacman_visuel(Partie p, char **plateau, int direction, int taille) 
 
 	printf("( %d , %d ) \n", p.pacman.c, p.pacman.l);
 	//à remplacer par pos2coin
-	pacman.x = p.pacman.c*taille - p.pacman.c%taille;
-	pacman.y = p.pacman.l*taille - p.pacman.l%taille;
+	pacman = pos2centre(p.pacman,CASE);// - p.pacman.l%taille;
 
 	p.pacman = deplacer_pacman_plateau(p,plateau,direction);
 	printf("( %d , %d ) \n", p.pacman.c, p.pacman.l);
 	//à remplacer par pos2coin
-	pacman_cible.x = p.pacman.c*taille - p.pacman.c%taille;
-	pacman_cible.y = p.pacman.l*taille - p.pacman.l%taille;
+	pacman_cible = pos2centre(p.pacman,CASE);
 
 	if(direction == haut || direction == bas)
 	{
 		//On déplace pacman tant qu'il n'a pas atteint les coordonnées de la case suivante
 		while(pacman.y != pacman_cible.y)
 		{
-			dessiner_disque(pacman, taille, noir);
+			dessiner_disque(pacman, TPACMAN, noir);
 			//Utilise selon le vecteur (0;-1) ou (0;1) selon la direction choisie.
 			pacman.y += (direction == haut) ? -1 : 1;
-			dessiner_disque(pacman, taille, jaune);
+			dessiner_disque(pacman, TPACMAN, jaune);
 			actualiser();
 			//On attend la fréquence
 			attente(FREQ);
@@ -56,7 +54,7 @@ Pos deplacer_pacman_visuel(Partie p, char **plateau, int direction, int taille) 
 	{
 		while(pacman.x != pacman_cible.x)
 		{
-			dessiner_disque(pacman, taille, noir);
+			dessiner_disque(pacman, TPACMAN, noir);
 			//Utilise selon le vecteur (1;0) ou (-1;0) selon la direction choisie.
 			pacman.x += (direction == droite) ? 1 : -1;
 			if (pacman.x < 0)
@@ -67,7 +65,7 @@ Pos deplacer_pacman_visuel(Partie p, char **plateau, int direction, int taille) 
 			{
 				pacman.x = 0;
 			}
-			dessiner_disque(pacman, taille, jaune);
+			dessiner_disque(pacman, TPACMAN, jaune);
 			actualiser();
 			attente(FREQ);
 		}
@@ -83,31 +81,31 @@ void dessiner_plateau(Partie p, char **plateau)
             if (p.plateau[i][j] == '*') // MUR = RECTANGLE BLEU
             {
                 Pos mur = {i, j} ;
-                dessiner_rectangle(pos2coin(mur, MUR), MUR, MUR, bleu);
+                dessiner_rectangle(pos2point(mur, CASE), MUR, MUR, bleu);
             }
 
             else if (p.plateau[i][j] == '.') // GUM = POINT BLANC
             {
                 Pos gum = {i, j};
-                changer_pixel(pos2point(gum,CASE), blanc);
+                changer_pixel(pos2centre(gum,CASE), blanc);
             }
 
             else if (p.plateau[i][j] == 'P') // PACMAN == DISQUE JAUNE
             {
                 Pos pacman = {i, j};
-                dessiner_disque(pos2point(pacman,CASE), TPACMAN, jaune);
+                dessiner_disque(pos2centre(pacman,CASE), TPACMAN, jaune);
             }
 
             else if (p.plateau[i][j] == 'F') // à voir si on supprime, FANTOME = RECTANGLE ROSE
             {
                 Pos fantome = {i, j};
-                dessiner_rectangle(pos2coin(fantome, CASE), TFANTOME, TFANTOME, pink);
+                dessiner_rectangle(pos2point(fantome, CASE), TFANTOME, TFANTOME, pink);
             }
 
             else if (p.plateau[i][j] == 'B') // BONUS = DISQUE ROUGE
             {
                 Pos bonus = {i, j};
-                dessiner_disque(pos2point(bonus,CASE), TPACMAN, rouge);
+                dessiner_disque(pos2centre(bonus,CASE), TPACMAN, rouge);
             }
         }
 }
@@ -170,9 +168,7 @@ Pos deplacer_pacman_plateau(Partie p,char **plateau,int direction) {
 
 		return p.pacman;
 	}
-
 	return p.pacman;
-
 }
 
 // DEPLACEMENT DES fantomes[i]
@@ -242,11 +238,11 @@ Point pos2point(Pos p,int taille)
 
 // DEFINITION POS2COIN (rectangles)
 
-Point pos2coin(Pos p, int taille)
+Point pos2centre(Pos p, int taille)
 {
     Point coin ;
-    coin.x = p.c*taille - p.c%taille;
-    coin.y = p.l*taille - p.l%taille;
+    coin.x = p.c*taille + (int)(taille/2);
+    coin.y = p.l*taille + (int)(taille/2);
     return coin ;
 }
 

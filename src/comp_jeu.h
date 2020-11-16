@@ -36,7 +36,7 @@ void dessiner_plateau(Partie p, char **plateau);
 Point pos2point(Pos p, int taille);
 
 /* idem mais pour les rectangles car renvoie le COIN. */
-Point pos2coin(Pos p, int taille);
+Point pos2centre(Pos p, int taille);
 
 //Définition des directions
 #define haut 0
@@ -45,14 +45,14 @@ Point pos2coin(Pos p, int taille);
 #define gauche 3
 
 //Pour l'affichage
-#define FREQ 20
+#define FREQ 10
 #define LONG 800
 #define LARG 600
 
 //Pour les tailles
-#define MUR 10
+#define MUR 15
 #define TPACMAN  5  //rayon pacman
-#define TFANTOME 5  //taille fantomes
-#define CASE 10
+#define TFANTOME 10  //taille fantomes
+#define CASE 15
 
 #endif
