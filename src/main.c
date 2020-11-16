@@ -44,15 +44,19 @@ int main(int argc, char **argv)
 /******************************************************************************/
 /* A PARTIR D'ICI...C'EST A VOUS DE JOUER!                                    */
 /******************************************************************************/
+// Démarrage du jeu.
     ouvrir_fenetre(800,600);
-    for(int i = 0; i<5;i++)
-      p.pacman=deplacer_pacman_visuel(p,p.plateau,gauche,TAILLE_CASE);
-    for(int i = 0; i<7;i++)
-      p.pacman=deplacer_pacman_visuel(p,p.plateau,haut,TAILLE_CASE);
-    for(int i = 0; i<10;i++)
-      p.pacman=deplacer_pacman_visuel(p,p.plateau,gauche,TAILLE_CASE);
-    afficher_plan(p);
+    demarrage();
+    
+    // Affichage du plateau.
+    dessiner_plateau(p, p.plateau);
+    actualiser();
+    
+    // Algorithme du jeu : 
+    
+    
+    // Fermeture du jeu.
     attendre_clic();
     fermer_fenetre();
-    return 0;
+    return 0; 
     }
