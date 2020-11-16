@@ -81,7 +81,7 @@ void dessiner_plateau(Partie p, char **plateau)
             if (p.plateau[i][j] == '*') // MUR = RECTANGLE BLEU
             {
                 Pos mur = {i, j} ;
-                dessiner_rectangle(pos2point(mur, CASE), MUR, MUR, bleu);
+                dessiner_rectangle(pos2point(mur, CASE), CASE, CASE, bleu);
             }
 
             else if (p.plateau[i][j] == '.') // GUM = POINT BLANC

@@ -77,7 +77,7 @@ int main(int argc, char **argv)
           dir = -1;
           break;
       }
-      p.pacman = deplacer_pacman_visuel(p, p.plateau, dir, MUR);
+      p.pacman = deplacer_pacman_visuel(p, p.plateau, dir, CASE);
     }
 
     // Fermeture du jeu.

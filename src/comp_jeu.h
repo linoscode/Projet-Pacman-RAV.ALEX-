@@ -50,9 +50,8 @@ Point pos2centre(Pos p, int taille);
 #define LARG 600
 
 //Pour les tailles
-#define MUR 15
 #define TPACMAN  5  //rayon pacman
 #define TFANTOME 10  //taille fantomes
-#define CASE 15
+#define CASE 20
 
 #endif
