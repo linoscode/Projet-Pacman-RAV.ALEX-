@@ -3,9 +3,10 @@
 
 #include <stdio.h>
 #include "./partie.h"
-#include "../libgraphique.h"
+#include "../lib/libgraphique.h"
 
-Pos deplacer_pacman_plateau(Partie p, char **plateau, int direction);
+Pos deplacer_pacman_plateau(Partie p, char ** plateau, int direction);
+Pos deplacer_pacman_visuel(Partie p, char ** plateau,int direction, int taille);
 int nbpacgommes(Partie p);
 void afficher_plan(Partie p);
 
@@ -13,5 +14,6 @@ void afficher_plan(Partie p);
 #define droite 1
 #define bas 2
 #define gauche 3
+#define FREQ 20
 
 #endif

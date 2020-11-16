@@ -1,5 +1,48 @@
 #include "./comp_jeu.h"
 
+Pos deplacer_pacman_visuel(Partie p, char **plateau, int direction, int taille) {
+	Point pacman;
+	Point pacman_cible;
+	printf("( %d , %d ) \n", p.pacman.c, p.pacman.l);
+	pacman.x = p.pacman.c*taille - p.pacman.c%taille;
+	pacman.y = p.pacman.l*taille - p.pacman.l%taille;
+	p.pacman = deplacer_pacman_plateau(p,plateau,direction);
+	printf("( %d , %d ) \n", p.pacman.c, p.pacman.l);
+	pacman_cible.x = p.pacman.c*taille - p.pacman.c%taille;
+	pacman_cible.y = p.pacman.l*taille - p.pacman.l%taille;
+
+	if(direction == haut || direction == bas)
+	{
+		while(pacman.y != pacman_cible.y)
+		{
+			dessiner_disque(pacman, taille, noir);
+			pacman.y += (direction == haut) ? -1 : 1;
+			dessiner_disque(pacman, taille, jaune);
+			actualiser();
+			attente(FREQ);
+		}
+	}
+
+	if(direction == gauche || direction == droite)
+	{
+		while(pacman.x != pacman_cible.x)
+		{
+			dessiner_disque(pacman, taille, noir);
+			pacman.x += (direction == droite) ? 1 : -1;
+			if (pacman.x < 0) {
+				pacman.x = p.C*taille - p.C%taille;
+			}
+			if (pacman.x > p.C*taille - p.C%taille ) {
+				pacman.x = 0;
+			}
+			dessiner_disque(pacman, taille, jaune);
+			actualiser();
+			attente(FREQ);
+		}
+	}
+	return p.pacman;
+}
+
 
 Pos deplacer_pacman_plateau(Partie p,char **plateau,int direction) {
   //On efface pacman de son ancien emplacement
@@ -12,7 +55,7 @@ Pos deplacer_pacman_plateau(Partie p,char **plateau,int direction) {
 		return p.pacman;
 	}
 
-	else if (direction==droite && plateau[p.pacman.l][p.pacman.c+1]!='*')
+	else if (direction==droite && p.plateau[p.pacman.l][p.pacman.c+1]!='*')
 	{
 		plateau[p.pacman.l][p.pacman.c]=' ';
 		if(p.pacman.c==p.C-1)
@@ -51,6 +94,7 @@ Pos deplacer_pacman_plateau(Partie p,char **plateau,int direction) {
 	}
 
 	return p.pacman;
+
 }
 
 int nbpacgommes(Partie p) {
