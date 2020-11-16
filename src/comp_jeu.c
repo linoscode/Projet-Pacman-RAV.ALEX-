@@ -15,7 +15,7 @@ void demarrage(void)
     afficher_texte("Ravaka RALAMBOARIVONY et Alexandre PAPAVASILEIOU",
                     20, coin, rouge);
     actualiser();
-    attente(3000);
+    attente(1500);
     coin.x = 0;
     coin.y = 0;
     dessiner_rectangle(coin, LONG, LARG, noir) ;

@@ -73,6 +73,9 @@ int main(int argc, char **argv)
         case SDLK_RIGHT:
           dir = droite;
           break;
+        default:
+          dir = -1;
+          break;
       }
       p.pacman = deplacer_pacman_visuel(p, p.plateau, dir, MUR);
     }
