@@ -56,6 +56,8 @@ int main(int argc, char **argv)
     int touche;
     int dir;
 
+    // Tout mettre dans une fonction
+
     while(touche != SDLK_ESCAPE)
     {
       touche = attendre_touche_duree(1);
@@ -77,7 +79,12 @@ int main(int argc, char **argv)
           dir = -1;
           break;
       }
-      p.pacman = deplacer_pacman_visuel(p, p.plateau, dir, CASE);
+      
+      p.dir_fant[0] = plus_court_chemin(p.fantomes[0], p.pacman, 0, p.dir_pos);
+      direction_possibles(p,0,p.dir_fant[0],p.dir_pos);
+      printf("%d %d %d %d \n",p.dir_pos[0][0],p.dir_pos[0][1], p.dir_pos[0][2], p.dir_pos[0][3]);
+      printf("direction : %d \n", p.dir_fant[0]);
+      p.pacman = deplacer_pacman_visuel(p, p.plateau, dir);
     }
 
     // Fermeture du jeu.

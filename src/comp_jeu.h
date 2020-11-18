@@ -10,7 +10,7 @@
 Pos deplacer_pacman_plateau(Partie p, char ** plateau, int direction);
 
 /* Retranscris le déplacement de pacman sur la fenêtre graphique */
-Pos deplacer_pacman_visuel(Partie p, char ** plateau,int direction, int taille);
+Pos deplacer_pacman_visuel(Partie p, char ** plateau,int direction);
 
 
 int nbpacgommes(Partie p);
@@ -23,13 +23,13 @@ Pos deplacer_fantome_plateau(Partie p, char **plateau);
  * Exemple d'utilisation : la source est 1fantôme, la cible est Pacman.
  * La fonction renvoie la case voisine la plus proche de pacman,
  * on se déplace sur cette case. */
-Pos plus_court_chemin(Pos source, Pos cible);
+int plus_court_chemin(Pos source, Pos cible,int i_fant,int dir_pos[][4]);
 
 /* Calcule la distance à vol d'oiseau entre 2 positions */
 int distance(Pos p1,Pos p2);
 
-/* Détermine les directions possibles */
-int * direction_possibles(Partie p,int i_fant, int dir_prec)
+/* Détermine les directions empruntables par le fantome */
+void direction_possibles(Partie p,int i_fant, int dir_prec, int dir_pos[][4]);
 
 /* Permet de débuguer */
 void afficher_plan(Partie p);

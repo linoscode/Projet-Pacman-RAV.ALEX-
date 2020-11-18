@@ -32,9 +32,9 @@ Pos deplacer_pacman_visuel(Partie p, char **plateau, int direction) {
 
 	pacman_cible = pos2centre(p.pacman,CASE);
 
-	if(direction == haut || direction == bas) {
+	if( direction == haut || direction == bas ) {
 		//On déplace pacman tant qu'il n'a pas atteint les coordonnées de la case suivante
-		while(pacman.y != pacman_cible.y) {
+		while ( pacman.y != pacman_cible.y ) {
 			dessiner_disque(pacman, TPACMAN, noir);
 			//Utilise selon le vecteur (0;-1) ou (0;1) selon la direction choisie.
 			pacman.y += (direction == haut) ? -1 : 1;
@@ -112,7 +112,7 @@ void dessiner_plateau(Partie p, char **plateau)
 /******************************************/
 
 
-Pos deplacer_pacman_plateau(Partie p,char **plateau,Pos direction) {
+Pos deplacer_pacman_plateau(Partie p,char **plateau,int direction) {
   //On efface pacman de son ancien emplacement
 	//On dessine pacman dans la direction donné
 	if(direction==haut && plateau[p.pacman.l-1][p.pacman.c]!='*')
@@ -227,23 +227,32 @@ int nbpacgommes(Partie p) {
 
 
 
-int * direction_possibles(Partie p,int i_fant, int dir_prec)
+void direction_possibles(Partie p,int i_fant, int dir_prec, int dir_pos[][4])
 {
-  int dir_pos[4] = {haut,droite,bas,gauche};
-  if(p.plateau[p.fantomes[i_fant].l++][p.fantomes[i_fant].c]=='*') {
-    dir_pos[haut]=-1;
+  if(p.plateau[p.fantomes[i_fant].l-1][p.fantomes[i_fant].c]=='*') {
+    dir_pos[i_fant][haut]=-1;
+  } else {
+    dir_pos[i_fant][haut]=haut;
   }
-  if(p.plateau[p.fantomes[i_fant].l][p.fantomes[i_fant].c++]=='*') {
-    dir_pos[droite]=-1;
+
+  if(p.plateau[p.fantomes[i_fant].l][p.fantomes[i_fant].c+1]=='*') {
+    dir_pos[i_fant][droite]=-1;
+  } else {
+    dir_pos[i_fant][droite]=droite;
   }
-  if(p.plateau[p.fantomes[i_fant].l--][p.fantomes[i_fant].c]=='*') {
-    dir_pos[bas]=-1;
+
+  if(p.plateau[p.fantomes[i_fant].l+1][p.fantomes[i_fant].c]=='*') {
+    dir_pos[i_fant][bas]=-1;
+  } else {
+    dir_pos[i_fant][bas]=bas;
   }
-  if(p.plateau[p.fantomes[i_fant].l][p.fantomes[i_fant].c--]=='*') {
-    dir_pos[gauche]=-1;
-  }
-  dir_pos[dir_prec]=-1;
-  return dir_pos;
+
+  if(p.plateau[p.fantomes[i_fant].l][p.fantomes[i_fant].c-1]=='*') {
+    dir_pos[i_fant][gauche]=-1;
+  } else {
+   dir_pos[i_fant][gauche]=gauche;
+ }
+  dir_pos[i_fant][dir_prec]=-1;
 }
 
 /******************************************/
@@ -266,59 +275,56 @@ Point pos2centre(Pos p, int taille)
     return coin ;
 }
 
-// ALGORITHME DE PLUS COURT CHEMIN 
+// ALGORITHME DE PLUS COURT CHEMIN
 
 int distance(Pos p1,Pos p2)
 {	/* Variables pour calculer la distance */
-	int dist_ligne = p1.l - p2.l; 
+	int dist_ligne = p1.l - p2.l;
 	int dist_colonne = p1.c - p2.c;
-	
+
 	/* Parce qu'une distance est positive ... */
 	if (dist_ligne < 0)
 		dist_ligne *= -1;
 	else if (dist_colonne < 0)
 		dist_colonne *= -1;
-		
+
 	/* Pythagore pour avoir la distance à vol d'oiseau */
 	int dist = DLIGNES + DCOLONNES; //voir les macros
 	return dist;
 }
 
-Pos plus_court_chemin(Pos source, Pos cible)
-{   
+int plus_court_chemin(Pos source, Pos cible,int i_fant,int dir_pos[][4])
+{
 	Pos voisin_haut = {source.l-1, source.c}; //case au dessus de la source
 	Pos voisin_bas = {source.l+1, source.c}; //case en dessous de la source
-	Pos voisin_avant = {source.l, source.c}; //case voisine vers la source
-	//Conditions pour déterminer si l'avant est à droite ou à gauche 
-	//de la source :
-	if (cible.c > source.c)
-		voisin_avant.c = source.c+1 ;
-	else if (cible.c < source.c)
-		voisin_avant.c = source.c-1 ;
-	
+	Pos voisin_gauche = {source.l, source.c-1}; //case voisine vers la source
+  Pos voisin_droite = {source.l, source.c+1};
+
 	/* Tableau stockant la distance entre les cases voisines
 	 * et la cible :                                          */
-	int directions[3] = {distance(voisin_haut, cible), distance(voisin_bas, cible), 
-						distance(voisin_avant, cible)} ;
+	int directions[4] = {distance(voisin_haut, cible), distance(voisin_droite, cible),
+						distance(voisin_bas, cible), distance(voisin_gauche, cible)} ;
 	int lpc = 100; //lpc = le plus court chemin
-	
-	/* Boucle pour déterminer le plus petit élément du tableau, 
+
+	/* Boucle pour déterminer le plus petit élément du tableau,
 	 * cad la plus petite distance :                            */
-	for(int i ; i<3 ; i++) 
+	for(int i = 0; i<4 ; i++)
 	{
-		if (directions[i] < lpc)
+		if (dir_pos[i_fant][i]!=-1 && directions[i] < lpc)
 			lpc = directions[i];
 	}
 	/* Conditions pour retourner la case voisine la plus proche
 	 * de la cible                                               */
-	 if (lpc == directions[0])
-		return voisin_haut;
+	if (lpc == directions[0])
+		return haut;
 	else if (lpc == directions[1])
-		return voisin_bas;
-	else
-		return voisin_avant;
+		return droite;
+	else if (lpc == directions[2])
+		return bas;
+  else
+    return gauche;
 }
-	
+
 
 /******************************************/
 /* Fonctions de déboggage                 */
