@@ -20,6 +20,9 @@ int nbpacgommes(Partie p);
  * l'instant                                                     */
 Pos deplacer_fantome(Partie p, char **plateau);
 
+/* Détermine les directions possibles */
+int * direction_possibles(Partie p,int i_fant, int dir_prec)
+
 /* Permet de débuguer */
 void afficher_plan(Partie p);
 

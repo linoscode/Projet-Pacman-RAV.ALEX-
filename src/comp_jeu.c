@@ -5,8 +5,8 @@
 /***********************************/
 void demarrage(void)
 {
-    Point coin = {0,0} ;
-    dessiner_rectangle(coin, LONG, LARG, blanc) ;
+    Point coin = { 0 , 0 } ;
+    dessiner_rectangle(coin, LONG, LARG, blanc);
     coin.x = LONG/5;
     coin.y = LARG/2 ;
     afficher_texte("PACMAN", 70, coin, bleu);
@@ -21,52 +21,49 @@ void demarrage(void)
     dessiner_rectangle(coin, LONG, LARG, noir) ;
 }
 
-Pos deplacer_pacman_visuel(Partie p, char **plateau, int direction, int taille) {
+Pos deplacer_pacman_visuel(Partie p, char **plateau, int direction) {
 
 	Point pacman;
 	Point pacman_cible;
-
-	printf("( %d , %d ) \n", p.pacman.c, p.pacman.l);
-	//à remplacer par pos2coin
-	pacman = pos2centre(p.pacman,CASE);// - p.pacman.l%taille;
-
+  //Calcul des coordonnées de pacman sur la fenêtre
+	pacman = pos2centre(p.pacman,CASE);
+  //Calcul des coordonnées de la prochaine position de pacman dans la fenêtre
 	p.pacman = deplacer_pacman_plateau(p,plateau,direction);
-	printf("( %d , %d ) \n", p.pacman.c, p.pacman.l);
-	//à remplacer par pos2coin
+
 	pacman_cible = pos2centre(p.pacman,CASE);
 
-	if(direction == haut || direction == bas)
-	{
+	if(direction == haut || direction == bas) {
 		//On déplace pacman tant qu'il n'a pas atteint les coordonnées de la case suivante
-		while(pacman.y != pacman_cible.y)
-		{
+		while(pacman.y != pacman_cible.y) {
 			dessiner_disque(pacman, TPACMAN, noir);
 			//Utilise selon le vecteur (0;-1) ou (0;1) selon la direction choisie.
 			pacman.y += (direction == haut) ? -1 : 1;
 			dessiner_disque(pacman, TPACMAN, jaune);
 			actualiser();
-			//On attend la fréquence
+      /*On attend un certain temps pour que la vitesse du jeu ne dépendent pas
+			de la vitesse de calcul */
 			attente(FREQ);
 		}
 	}
 
-	if(direction == gauche || direction == droite)
-	{
-		while(pacman.x != pacman_cible.x)
-		{
+	if(direction == gauche || direction == droite) {
+		while(pacman.x != pacman_cible.x) {
 			dessiner_disque(pacman, TPACMAN, noir);
 			//Utilise selon le vecteur (1;0) ou (-1;0) selon la direction choisie.
 			pacman.x += (direction == droite) ? 1 : -1;
-			if (pacman.x < 0)
-			{
-				pacman.x = p.C*taille - p.C%taille;
+
+			if (pacman.x < 0) {
+				pacman.x = p.C*CASE - p.C%CASE;
 			}
-			if (pacman.x > p.C*taille - p.C%taille )
-			{
+
+			if (pacman.x > p.C*CASE - p.C%CASE ) {
 				pacman.x = 0;
 			}
+
 			dessiner_disque(pacman, TPACMAN, jaune);
 			actualiser();
+			/*On attend un certain temps pour que la vitesse du jeu ne dépendent pas
+			de la vitesse de calcul */
 			attente(FREQ);
 		}
 	}
@@ -115,7 +112,7 @@ void dessiner_plateau(Partie p, char **plateau)
 /******************************************/
 
 
-Pos deplacer_pacman_plateau(Partie p,char **plateau,int direction) {
+Pos deplacer_pacman_plateau(Partie p,char **plateau,Pos direction) {
   //On efface pacman de son ancien emplacement
 	//On dessine pacman dans la direction donné
 	if(direction==haut && plateau[p.pacman.l-1][p.pacman.c]!='*')
@@ -214,18 +211,41 @@ Pos deplacer_fantome(Partie p, char **plateau)
 
 //Fonction qui permet de compter le nombre de pacgommes sur le plateau
 int nbpacgommes(Partie p) {
+
 	for(int i=0; i<p.L;i++)
-	{
+  {
 		for(int j=0;j<p.C;j++)
-		{
+    {
 			if(p.plateau[i][j]=='.')
-			{
+      {
 				p.nbpacgommes++;
 			}
 		}
 	}
 	return p.nbpacgommes;
 }
+
+
+
+int * direction_possibles(Partie p,int i_fant, int dir_prec)
+{
+  int dir_pos[4] = {haut,droite,bas,gauche};
+  if(p.plateau[p.fantomes[i_fant].l++][p.fantomes[i_fant].c]=='*') {
+    dir_pos[haut]=-1;
+  }
+  if(p.plateau[p.fantomes[i_fant].l][p.fantomes[i_fant].c++]=='*') {
+    dir_pos[droite]=-1;
+  }
+  if(p.plateau[p.fantomes[i_fant].l--][p.fantomes[i_fant].c]=='*') {
+    dir_pos[bas]=-1;
+  }
+  if(p.plateau[p.fantomes[i_fant].l][p.fantomes[i_fant].c--]=='*') {
+    dir_pos[gauche]=-1;
+  }
+  dir_pos[dir_prec]=-1;
+  return dir_pos;
+}
+
 /******************************************/
 /* Fonctions de calculs                 */
 /******************************************/
