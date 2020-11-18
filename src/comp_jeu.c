@@ -173,7 +173,7 @@ Pos deplacer_pacman_plateau(Partie p,char **plateau,int direction) {
 
 // DEPLACEMENT DES fantomes[i]
 
-Pos deplacer_fantome(Partie p, char **plateau)
+Pos deplacer_fantome_plateau(Partie p, char **plateau)
 {
     for(int i=0 ; i<NBFANTOMES ; i++)
     {
@@ -246,6 +246,59 @@ Point pos2centre(Pos p, int taille)
     return coin ;
 }
 
+// ALGORITHME DE PLUS COURT CHEMIN 
+
+int distance(Pos p1,Pos p2)
+{	/* Variables pour calculer la distance */
+	int dist_ligne = p1.l - p2.l; 
+	int dist_colonne = p1.c - p2.c;
+	
+	/* Parce qu'une distance est positive ... */
+	if (dist_ligne < 0)
+		dist_ligne *= -1;
+	else if (dist_colonne < 0)
+		dist_colonne *= -1;
+		
+	/* Pythagore pour avoir la distance à vol d'oiseau */
+	int dist = DLIGNES + DCOLONNES; //voir les macros
+	return dist;
+}
+
+Pos plus_court_chemin(Pos source, Pos cible)
+{   
+	Pos voisin_haut = {source.l-1, source.c}; //case au dessus de la source
+	Pos voisin_bas = {source.l+1, source.c}; //case en dessous de la source
+	Pos voisin_avant = {source.l, source.c}; //case voisine vers la source
+	//Conditions pour déterminer si l'avant est à droite ou à gauche 
+	//de la source :
+	if (cible.c > source.c)
+		voisin_avant.c = source.c+1 ;
+	else if (cible.c < source.c)
+		voisin_avant.c = source.c-1 ;
+	
+	/* Tableau stockant la distance entre les cases voisines
+	 * et la cible :                                          */
+	int directions[3] = {distance(voisin_haut, cible), distance(voisin_bas, cible), 
+						distance(voisin_avant, cible)} ;
+	int lpc = 100; //lpc = le plus court chemin
+	
+	/* Boucle pour déterminer le plus petit élément du tableau, 
+	 * cad la plus petite distance :                            */
+	for(int i ; i<3 ; i++) 
+	{
+		if (directions[i] < lpc)
+			lpc = directions[i];
+	}
+	/* Conditions pour retourner la case voisine la plus proche
+	 * de la cible                                               */
+	 if (lpc == directions[0])
+		return voisin_haut;
+	else if (lpc == directions[1])
+		return voisin_bas;
+	else
+		return voisin_avant;
+}
+	
 
 /******************************************/
 /* Fonctions de déboggage                 */

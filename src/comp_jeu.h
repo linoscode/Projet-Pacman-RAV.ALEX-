@@ -16,9 +16,17 @@ Pos deplacer_pacman_visuel(Partie p, char ** plateau,int direction, int taille);
 int nbpacgommes(Partie p);
 
 /* Gère les déplacements des fantomes en fonction de la pos de
- * pacman (comme le monstre). Fonctionne avec 1 seul fantôme pour
- * l'instant                                                     */
-Pos deplacer_fantome(Partie p, char **plateau);
+ * pacman (comme le monstre pour l'instant                      */
+Pos deplacer_fantome_plateau(Partie p, char **plateau);
+
+/* Fonction déterminant la case voisine la plus proche de la cible.
+ * Exemple d'utilisation : la source est 1fantôme, la cible est Pacman.
+ * La fonction renvoie la case voisine la plus proche de pacman,
+ * on se déplace sur cette case. */
+Pos plus_court_chemin(Pos source, Pos cible);
+
+/* Calcule la distance à vol d'oiseau entre 2 positions */
+int distance(Pos p1,Pos p2);
 
 /* Permet de débuguer */
 void afficher_plan(Partie p);
@@ -35,7 +43,7 @@ void dessiner_plateau(Partie p, char **plateau);
  * Facilite dessiner_plateau                                    */
 Point pos2point(Pos p, int taille);
 
-/* idem mais pour les rectangles car renvoie le COIN. */
+/* idem mais pour les rectangles, renvoie le centre. */
 Point pos2centre(Pos p, int taille);
 
 //Définition des directions
@@ -54,4 +62,7 @@ Point pos2centre(Pos p, int taille);
 #define TFANTOME 10  //taille fantomes
 #define CASE 20
 
+//Pour les calculs de distances
+#define DLIGNES dist_ligne*dist_ligne
+#define DCOLONNES dist_colonne*dist_colonne
 #endif
