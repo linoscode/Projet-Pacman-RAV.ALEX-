@@ -213,15 +213,9 @@ Pos deplacer_fantome_plateau(Partie p, char **plateau)
 int nbpacgommes(Partie p) {
 
 	for(int i=0; i<p.L;i++)
-  {
 		for(int j=0;j<p.C;j++)
-    {
 			if(p.plateau[i][j]=='.')
-      {
 				p.nbpacgommes++;
-			}
-		}
-	}
 	return p.nbpacgommes;
 }
 
