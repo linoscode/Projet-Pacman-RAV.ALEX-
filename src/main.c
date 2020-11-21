@@ -54,48 +54,26 @@ int main(int argc, char **argv)
 
     // Algorithme du jeu :
     int touche;
-    int dir;
+    Pos dir;
 
     // Tout mettre dans une fonction
-    deplacer_fantome_plateau(p.fantomes,p.plateau, 0, haut);
-    deplacer_fantome_plateau(p.fantomes,p.plateau, 0, gauche);
-    deplacer_fantome_plateau(p.fantomes,p.plateau, 0, haut);
-    deplacer_fantome_plateau(p.fantomes,p.plateau, 0, haut);
-    p.plateau[11][11]='*';
-
+    //deplacer_hors_spawn(p.fantomes, p.plateau);
 
     while(touche != SDLK_ESCAPE)
     {
       touche = attendre_touche();
-      switch ( touche )
-      {
-        case SDLK_UP:
-          dir = haut;
-          break;
-        case SDLK_LEFT:
-          dir = gauche;
-          break;
-        case SDLK_DOWN:
-          dir = bas;
-          break;
-        case SDLK_RIGHT:
-          dir = droite;
-          break;
-        default:
-          dir = -1;
-          break;
-      }
-
-
+      dir = touche2pos(touche);
       direction_possibles(p,0,p.dir_prec,p.dir_pos);
       p.dir_fant[0] = plus_court_chemin(p.fantomes[0], p.pacman, 0, p.dir_pos, p.dir_prec);
-      printf("%d %d %d %d \n",p.dir_pos[0][0],p.dir_pos[0][1], p.dir_pos[0][2], p.dir_pos[0][3]);
-      printf("direction : %d \n", p.dir_fant[0]);
+      printf("direction possibles\n");
+      for(int i = 0; i<4;i++)
+        printf("%d %d \n",p.dir_pos[0][i].l,p.dir_pos[0][i].c);
+      printf("direction : %d %d \n", p.dir_fant[0].c, p.dir_fant[0].l);
+      printf("direction prec : %d %d \n", p.dir_prec[0].c, p.dir_prec[0].l);
       deplacer_fantome_plateau(p.fantomes,p.plateau,0,p.dir_fant[0]);
       deplacer_fantome_visuel(p,0);
       p.pacman = deplacer_pacman_visuel(p, p.plateau, dir);
     }
-
     // Fermeture du jeu.
     attendre_clic();
     fermer_fenetre();
