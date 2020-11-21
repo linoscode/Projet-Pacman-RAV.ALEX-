@@ -49,31 +49,7 @@ int main(int argc, char **argv)
     demarrage();
 
     // Affichage du plateau.
-    dessiner_plateau(p, p.plateau);
-    actualiser();
-
-    // Algorithme du jeu :
-    int touche;
-    Pos dir;
-
-    // Tout mettre dans une fonction
-    //deplacer_hors_spawn(p.fantomes, p.plateau);
-
-    while(touche != SDLK_ESCAPE)
-    {
-      touche = attendre_touche();
-      dir = touche2pos(touche);
-      direction_possibles(p,0,p.dir_prec,p.dir_pos);
-      p.dir_fant[0] = plus_court_chemin(p.fantomes[0], p.pacman, 0, p.dir_pos, p.dir_prec);
-      printf("direction possibles\n");
-      for(int i = 0; i<4;i++)
-        printf("%d %d \n",p.dir_pos[0][i].l,p.dir_pos[0][i].c);
-      printf("direction : %d %d \n", p.dir_fant[0].c, p.dir_fant[0].l);
-      printf("direction prec : %d %d \n", p.dir_prec[0].c, p.dir_prec[0].l);
-      deplacer_fantome_plateau(p.fantomes,p.plateau,0,p.dir_fant[0]);
-      deplacer_fantome_visuel(p,0);
-      p.pacman = deplacer_pacman_visuel(p, p.plateau, dir);
-    }
+    demarrer_partie(p);
     // Fermeture du jeu.
     attendre_clic();
     fermer_fenetre();

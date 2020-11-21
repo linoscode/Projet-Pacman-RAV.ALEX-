@@ -27,10 +27,45 @@ void demarrage(void)
     dessiner_rectangle(coin, LONG, LARG, noir) ;
 }
 
-Pos deplacer_pacman_visuel(Partie p, char **plateau, Pos direction) {
+void demarrer_partie(Partie p ) {
+  dessiner_plateau(p, p.plateau);
+  actualiser();
+
+  // Algorithme du jeu :
+  int touche;
+  Pos dir;
+  // Tout mettre dans une fonction
+  //deplacer_hors_spawn(p.fantomes, p.plateau);
+
+  while(touche != SDLK_ESCAPE)
+  {
+    touche = attendre_touche_duree(1);
+    dir = touche2pos(touche);
+    direction_possibles(p,0,p.dir_prec,p.dir_pos);
+    p.dir_fant[0] = plus_court_chemin(p.fantomes[0], p.pacman, 0,
+                                        p.dir_pos, p.dir_prec);
+    deplacer_fantome_plateau(p.fantomes,p.plateau,0,p.dir_fant[0]);
+    p.pacman = deplacements_visuels(p, p.plateau, dir);
+  }
+}
+
+Pos deplacements_visuels(Partie p, char **plateau, Pos direction) {
+
+  int pdone = 0;
+  int fdone = 0;
 
 	Point pacman;
 	Point pacman_cible;
+
+  Point p_fant[NBFANTOMES];
+  Point p_fant_cible[NBFANTOMES];
+
+  for(int i=0; i<NBFANTOMES;i++) {
+    p_fant_cible[i] = pos2point(p.fantomes[i],CASE);
+    p_fant[i] = p_fant_cible[i];
+    p_fant[i].x -= p.dir_fant[i].c*CASE;
+    p_fant[i].y -= p.dir_fant[i].l*CASE;
+  }
   //Calcul des coordonnées de pacman sur la fenêtre
 	pacman = pos2centre(p.pacman,CASE);
   //Calcul des coordonnées de la prochaine position de pacman dans la fenêtre
@@ -38,53 +73,45 @@ Pos deplacer_pacman_visuel(Partie p, char **plateau, Pos direction) {
 
 	pacman_cible = pos2centre(p.pacman,CASE);
 
-	if ( direction.l != 0) {
-		//On déplace pacman tant qu'il n'a pas atteint les coordonnées de la case suivante
-		while ( pacman.y != pacman_cible.y ) {
-      dessiner_disque(pacman, TPACMAN, noir);
-			//Utilise selon le vecteur (0;-1) ou (0;1) selon la direction choisie.
-      dessiner_disque(pacman, TPACMAN, noir);
-			pacman.y += direction.l;
-			dessiner_disque(pacman, TPACMAN, jaune);
-			actualiser();
-      /*On attend un certain temps pour que la vitesse du jeu ne dépendent pas
-			de la vitesse de calcul */
-			attente(FREQ);
-		}
+      //On déplace pacman tant qu'il n'a pas atteint les coordonnées de la case suivante
+  while (!pdone || !fdone) {
+
+    for(int i=0; i<NBFANTOMES;i++) {
+      if (p_fant[i].x != p_fant_cible[i].x || p_fant[i].y != p_fant_cible[i].y) {
+          dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, noir);
+          p_fant[i].x += p.dir_fant[i].c;
+          p_fant[i].y += p.dir_fant[i].l;
+          dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, pink);
+    } else {
+      fdone = 1;
+    }
   }
 
-  if ( direction.c!=0 ) {
-      //On déplace pacman tant qu'il n'a pas atteint les coordonnées de la case suivante
-      while ( pacman.x != pacman_cible.x ) {
-        dessiner_disque(pacman, TPACMAN, noir);
-        if(pacman.x > p.C*CASE) {
-          pacman.x=0;
-        }
-        if(pacman.x < 0 ) {
-          pacman.x=p.C*CASE;
-        }
-        //Utilise selon le vecteur (0;-1) ou (0;1) selon la direction choisie.
-        pacman.x += direction.c;
-        dessiner_disque(pacman, TPACMAN, jaune);
-        actualiser();
-        /*On attend un certain temps pour que la vitesse du jeu ne dépendent pas
-        de la vitesse de calcul */
-        attente(FREQ);
+    if (pacman.x != pacman_cible.x || pacman.y != pacman_cible.y) {
+      dessiner_disque(pacman, TPACMAN, noir);
+      if(pacman.x > p.C*CASE) {
+        pacman.x=0;
+      }
+      if(pacman.x < 0 ) {
+        pacman.x=p.C*CASE;
+      }
+      //Utilise selon le vecteur (0;-1) ou (0;1) selon la direction choisie.
+      pacman.x += direction.c;
+      pacman.y += direction.l;
+      dessiner_disque(pacman, TPACMAN, jaune);
+    } else {
+      pdone = 1;
     }
+
+    actualiser();
+    /*On attend un certain temps pour que la vitesse du jeu ne dépendent pas
+    de la vitesse de calcul */
+    attente(FREQ);
   }
   return p.pacman;
 
 }
 
-void deplacer_fantome_visuel(Partie p,int i_fant) {
-  Point p_fant_cible = pos2point(p.fantomes[0],CASE);
-  Point p_fant = p_fant_cible;
-  p_fant.x -= p.dir_fant[i_fant].c*CASE;
-  p_fant.y -= p.dir_fant[i_fant].l*CASE;
-  dessiner_rectangle(p_fant, TFANTOME , TFANTOME, noir);
-  dessiner_rectangle(p_fant_cible, TFANTOME , TFANTOME, pink);
-  actualiser();
-}
 
 void dessiner_plateau(Partie p, char **plateau)
 {
@@ -303,7 +330,6 @@ Pos plus_court_chemin(Pos source, Pos cible,int i_fant,Pos dir_pos[][4], Pos dir
 	{
 		if (!areEqual(dir_pos[i_fant][i],def) && directions[i] <= lpc) {
 			lpc = directions[i];
-      printf("%d\n",i);
     }
 	}
 

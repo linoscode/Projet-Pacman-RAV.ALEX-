@@ -5,12 +5,14 @@
 #include "./partie.h"
 #include "../lib/libgraphique.h"
 
+void demarrer_partie(Partie p );
+
 /* Change la position de pacman dans le tableau 'plateau' et
  * retourne les coordonnées tableau de pacman.               */
 Pos deplacer_pacman_plateau(Partie p, char ** plateau, Pos direction);
 
 /* Retranscris le déplacement de pacman sur la fenêtre graphique */
-Pos deplacer_pacman_visuel(Partie p, char ** plateau,Pos direction);
+Pos deplacements_visuels(Partie p, char ** plateau,Pos direction);
 
 /* Compte le nombre de pacgommes (=Partie nbbonus) restant sur le plateau */
 int nbpacgommes(Partie p);
@@ -21,7 +23,7 @@ void deplacer_fantome_plateau(Pos fantomes[], char **plateau, int i_fant, Pos di
 
 Pos touche2pos(int touche);
 
-void deplacer_fantome_visuel(Partie p,int i_fant);
+
 
 /* Fonction déterminant la case voisine la plus proche de la cible.
  * Exemple d'utilisation : la source est 1fantôme, la cible est Pacman.
@@ -69,7 +71,7 @@ void deplacer_hors_spawn(Pos *fantomes, char **plateau);
 
 
 //Pour l'affichage
-#define FREQ 10
+#define FREQ 13
 #define LONG 800
 #define LARG 600
 
