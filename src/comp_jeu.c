@@ -27,6 +27,25 @@ void demarrage(void)
     dessiner_rectangle(coin, LONG, LARG, noir) ;
 }
 
+void rafraichirbonuspg(Partie p) {
+  for(int i=0; i<p.L;i++)
+  {
+    for(int j=0;j<p.C;j++)
+    {
+      if (p.plateau[i][j] == '.') // GUM = POINT BLANC
+      {
+          Pos gum = {i, j};
+          changer_pixel(pos2centre(gum,CASE), blanc);
+      }
+      if (p.plateau[i][j] == 'B') // BONUS = DISQUE ROUGE
+      {
+          Pos bonus = {i, j};
+          dessiner_disque(pos2centre(bonus,CASE), TPACMAN, rouge);
+      }
+    }
+  }
+}
+
 void demarrer_partie(Partie p ) {
   dessiner_plateau(p, p.plateau);
   actualiser();
@@ -42,8 +61,11 @@ void demarrer_partie(Partie p ) {
     touche = attendre_touche_duree(1);
     dir = touche2pos(touche);
     direction_possibles(p,0,p.dir_prec,p.dir_pos);
-    p.dir_fant[0] = plus_court_chemin(p.fantomes[0], p.pacman, 0,
+    p.target[0].c=1;
+    p.target[0].l=1;
+    p.dir_fant[0] = plus_court_chemin(p.fantomes[0], p.target[0], 0,
                                         p.dir_pos, p.dir_prec);
+    printf("dir fant %d %d \n", p.dir_fant[0].c, p.dir_fant[0].l);
     deplacer_fantome_plateau(p.fantomes,p.plateau,0,p.dir_fant[0]);
     p.pacman = deplacements_visuels(p, p.plateau, dir);
   }
@@ -270,6 +292,7 @@ void direction_possibles(Partie p,int i_fant, Pos dir_prec[], Pos dir_pos[][4])
    dir_pos[i_fant][3]=gauche;
   }
   dir_pos[i_fant][i2dir(dir_prec[i_fant])]=def;
+
 }
 
 /******************************************/
@@ -313,16 +336,16 @@ int distance(Pos p1,Pos p2)
 
 Pos plus_court_chemin(Pos source, Pos cible,int i_fant,Pos dir_pos[][4], Pos dir_prec[])
 {
-	Pos voisin_haut = {source.l -1, source.c};   //case au dessus de la source
-	Pos voisin_bas = {source.l +1, source.c};    //case en dessous de la source
-	Pos voisin_gauche = {source.l, source.c -1}; //case voisine vers la source
-  Pos voisin_droite = {source.l, source.c +1};
+	Pos voisin_haut = {source.l-1, source.c};   //case au dessus de la source
+	Pos voisin_bas = {source.l+1, source.c};    //case en dessous de la source
+	Pos voisin_gauche = {source.l, source.c-1}; //case voisine vers la source
+  Pos voisin_droite = {source.l, source.c+1};
 
 	/* Tableau stockant la distance entre les cases voisines
 	 * et la cible :                                          */
 	int directions[4] = {distance(voisin_haut, cible), distance(voisin_droite, cible),
 						           distance(voisin_bas, cible), distance(voisin_gauche, cible)} ;
-	int lpc = 100; //lpc = le plus court chemin
+	int lpc = 1000000000; //lpc = le plus court chemin
 
 	/* Boucle pour déterminer le plus petit élément du tableau,
 	 * cad la plus petite distance :                            */
@@ -332,9 +355,12 @@ Pos plus_court_chemin(Pos source, Pos cible,int i_fant,Pos dir_pos[][4], Pos dir
 			lpc = directions[i];
     }
 	}
+  for(int i = 0; i<4 ; i++) {
+    printf("%d %d \n",dir_pos[i_fant][i].c,dir_pos[i_fant][i].l);
+  }
 
   for(int i = 0; i<4;i++) {
-    if(lpc == directions[i]) {
+    if(!areEqual(dir_pos[i_fant][i],def) && lpc == directions[i]) {
       dir_prec[i_fant]=opposite(dir_pos[i_fant][i]);
       return dir_pos[i_fant][i];
     }
@@ -354,8 +380,10 @@ Pos opposite(Pos d) {
   }
   else if(areEqual(d,droite)) {
     return gauche;
+  } else if(areEqual(d,def)) {
+    printf("No decision made\n");
+    return def;
   }
-  return def;
 }
 
 
