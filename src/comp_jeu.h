@@ -12,7 +12,7 @@ Pos deplacer_pacman_plateau(Partie p, char ** plateau, int direction);
 /* Retranscris le déplacement de pacman sur la fenêtre graphique */
 Pos deplacer_pacman_visuel(Partie p, char ** plateau,int direction);
 
-
+/* Compte le nombre de pacgommes (=Partie nbbonus) restant sur le plateau */
 int nbpacgommes(Partie p);
 
 /* Gère les déplacements des fantomes en fonction de la pos de
@@ -48,7 +48,7 @@ void dessiner_plateau(Partie p, char **plateau);
  * Facilite dessiner_plateau                                    */
 Point pos2point(Pos p, int taille);
 
-/* idem mais pour les rectangles, renvoie le centre. */
+/* idem mais pour les rectangles, renvoie leur centre. */
 Point pos2centre(Pos p, int taille);
 
 //Définition des directions
