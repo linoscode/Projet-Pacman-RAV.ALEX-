@@ -57,10 +57,16 @@ int main(int argc, char **argv)
     int dir;
 
     // Tout mettre dans une fonction
+    deplacer_fantome_plateau(p.fantomes,p.plateau, 0, haut);
+    deplacer_fantome_plateau(p.fantomes,p.plateau, 0, gauche);
+    deplacer_fantome_plateau(p.fantomes,p.plateau, 0, haut);
+    deplacer_fantome_plateau(p.fantomes,p.plateau, 0, haut);
+    p.plateau[11][11]='*';
+
 
     while(touche != SDLK_ESCAPE)
     {
-      touche = attendre_touche_duree(1);
+      touche = attendre_touche();
       switch ( touche )
       {
         case SDLK_UP:
@@ -79,11 +85,14 @@ int main(int argc, char **argv)
           dir = -1;
           break;
       }
-      
-      p.dir_fant[0] = plus_court_chemin(p.fantomes[0], p.pacman, 0, p.dir_pos);
-      direction_possibles(p,0,p.dir_fant[0],p.dir_pos);
+
+
+      direction_possibles(p,0,p.dir_prec,p.dir_pos);
+      p.dir_fant[0] = plus_court_chemin(p.fantomes[0], p.pacman, 0, p.dir_pos, p.dir_prec);
       printf("%d %d %d %d \n",p.dir_pos[0][0],p.dir_pos[0][1], p.dir_pos[0][2], p.dir_pos[0][3]);
       printf("direction : %d \n", p.dir_fant[0]);
+      deplacer_fantome_plateau(p.fantomes,p.plateau,0,p.dir_fant[0]);
+      deplacer_fantome_visuel(p,0);
       p.pacman = deplacer_pacman_visuel(p, p.plateau, dir);
     }
 

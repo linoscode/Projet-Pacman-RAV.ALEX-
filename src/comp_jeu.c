@@ -1,5 +1,11 @@
 #include "./comp_jeu.h"
 
+const Pos haut = {-1,0};
+const Pos bas = {1,0};
+const Pos gauche = {0,-1};
+const Pos droite = {0,1};
+
+
 /***********************************/
 /* Fonctions visuelles             */
 /***********************************/
@@ -21,7 +27,7 @@ void demarrage(void)
     dessiner_rectangle(coin, LONG, LARG, noir) ;
 }
 
-Pos deplacer_pacman_visuel(Partie p, char **plateau, int direction) {
+Pos deplacer_pacman_visuel(Partie p, char **plateau, Pos direction) {
 
 	Point pacman;
 	Point pacman_cible;
@@ -32,12 +38,12 @@ Pos deplacer_pacman_visuel(Partie p, char **plateau, int direction) {
 
 	pacman_cible = pos2centre(p.pacman,CASE);
 
-	if( direction == haut || direction == bas ) {
+	if( direction.l == -1 || direction.l == 1 ) {
 		//On déplace pacman tant qu'il n'a pas atteint les coordonnées de la case suivante
 		while ( pacman.y != pacman_cible.y ) {
 			dessiner_disque(pacman, TPACMAN, noir);
 			//Utilise selon le vecteur (0;-1) ou (0;1) selon la direction choisie.
-			pacman.y += (direction == haut) ? -1 : 1;
+			pacman.y += direction.l;
 			dessiner_disque(pacman, TPACMAN, jaune);
 			actualiser();
       /*On attend un certain temps pour que la vitesse du jeu ne dépendent pas
@@ -46,11 +52,11 @@ Pos deplacer_pacman_visuel(Partie p, char **plateau, int direction) {
 		}
 	}
 
-	if(direction == gauche || direction == droite) {
+	if(direction.c == -1 || direction.c == 1) {
 		while(pacman.x != pacman_cible.x) {
 			dessiner_disque(pacman, TPACMAN, noir);
 			//Utilise selon le vecteur (1;0) ou (-1;0) selon la direction choisie.
-			pacman.x += (direction == droite) ? 1 : -1;
+			pacman.x += direction.c;
 
 			if (pacman.x < 0) {
 				pacman.x = p.C*CASE - p.C%CASE;
@@ -68,6 +74,20 @@ Pos deplacer_pacman_visuel(Partie p, char **plateau, int direction) {
 		}
 	}
 	return p.pacman;
+}
+
+void deplacer_fantome_visuel(Partie p,int i_fant) {
+  Point p_fant_cible = pos2point(p.fantomes[0],CASE);
+  Point p_fant = p_fant_cible;
+  if (p.dir_prec[i_fant]==gauche || p.dir_prec[i_fant]==droite) {
+    p_fant.x += (p.dir_prec[i_fant]==gauche) ? CASE : -CASE;
+  }
+  if (p.dir_prec[i_fant]==haut || p.dir_prec[i_fant]==bas) {
+    p_fant.y += (p.dir_prec[i_fant]==haut) ? CASE : -CASE;
+  }
+  dessiner_rectangle(p_fant, TFANTOME , TFANTOME, noir);
+  dessiner_rectangle(p_fant_cible, TFANTOME , TFANTOME, pink);
+  actualiser();
 }
 
 void dessiner_plateau(Partie p, char **plateau)
@@ -96,7 +116,7 @@ void dessiner_plateau(Partie p, char **plateau)
             else if (p.plateau[i][j] == 'F') // à voir si on supprime, FANTOME = RECTANGLE ROSE
             {
                 Pos fantome = {i, j};
-                dessiner_rectangle(pos2point(fantome, CASE), TFANTOME, TFANTOME, pink);
+                //dessiner_rectangle(pos2point(fantome, CASE), TFANTOME, TFANTOME, pink);
             }
 
             else if (p.plateau[i][j] == 'B') // BONUS = DISQUE ROUGE
@@ -112,101 +132,38 @@ void dessiner_plateau(Partie p, char **plateau)
 /******************************************/
 
 
-Pos deplacer_pacman_plateau(Partie p,char **plateau,int direction) {
+Pos deplacer_pacman_plateau(Partie p,char **plateau,Pos direction) {
   //On efface pacman de son ancien emplacement
 	//On dessine pacman dans la direction donné
-	if(direction==haut && plateau[p.pacman.l-1][p.pacman.c]!='*')
-	{
-		plateau[p.pacman.l][p.pacman.c]=' ';
-		p.pacman.l--;
-		plateau[p.pacman.l][p.pacman.c]='P';
-		return p.pacman;
-	}
-
-	else if (direction==droite && p.plateau[p.pacman.l][p.pacman.c+1]!='*')
-	{
-		plateau[p.pacman.l][p.pacman.c]=' ';
-		//Si pacman sort du plateau on le ramène de l'autre côté
-		//permet de créer des tunnels en laissant des trous vers l'extérieur du plateau
-		if(p.pacman.c==p.C-1)
-		{
-			p.pacman.c=0;
-			plateau[p.pacman.l][p.pacman.c]='P';
-		}
-		else
-		{
-			p.pacman.c++;
-			plateau[p.pacman.l][p.pacman.c]='P';
-		}
-		return p.pacman;
-	}
-
-	else if (direction==bas && plateau[p.pacman.l+1][p.pacman.c]!='*')
-	{
-		plateau[p.pacman.l][p.pacman.c]=' ';
-		p.pacman.l++;
-		plateau[p.pacman.l][p.pacman.c]='P';
-		return p.pacman;
-	}
-
-	else if (direction==gauche && plateau[p.pacman.l][p.pacman.c-1]!='*')
-	{
-		plateau[p.pacman.l][p.pacman.c]=' ';
-		if(p.pacman.c==0)
-		{
-			p.pacman.c=p.C-1;
-			plateau[p.pacman.l][p.pacman.c]='P';
-		}
-		else
-		{
-			p.pacman.c--;
-			plateau[p.pacman.l][p.pacman.c]='P';
-		}
-
-		return p.pacman;
-	}
-	return p.pacman;
+  if (plateau[p.pacman.l+direction.l][p.pacman.c+direction.c]!='*') {
+    plateau[p.pacman.l][p.pacman.c]=' ';
+    if(p.pacman.c==0 && direction.c==-1) {
+      plateau[p.pacman.l][p.C-1]='P';
+      p.pacman.c=C-1;
+    } else if (p.pacman.c==C-1 && direction.c==1) {
+      plateau[p.pacman.l][0]='P';
+      p.pacman.c=0;
+    } else {
+      p.pacman.c+=direction.c;
+      p.pacman.l+=direction.l
+      plateau[p.pacman.l+direction.l][p.pacman.c+direction.c]='P';
+    }
+  }
+  return p.pacman;
 }
 
 // DEPLACEMENT DES fantomes[i]
 
-Pos deplacer_fantome_plateau(Partie p, char **plateau)
+void deplacer_fantome_plateau(Pos fantomes[], char **plateau, int i_fant, Pos direction)
 {
-    for(int i=0 ; i<NBFANTOMES ; i++)
-    {
-        plateau[p.fantomes[i].l][p.fantomes[i].c]=' ';
-        //On efface le fantôme avant de le redessiner
-        // On redessine le fantome en fonction de la pos de pacman:
 
-        /* Si le pacman est à droite du fantome ET que la case voisine droite du fantome
-        * n'est pas un mur, alors on dessine le fantôme. */
-        if ( (p.pacman.c > p.fantomes[i].c) && (plateau[p.fantomes[i].l][p.fantomes[i].c ++] != '*') )
-        {
-            p.fantomes[i].c ++;
-            plateau[p.fantomes[i].l][p.fantomes[i].c] = 'F';
-        }
+  plateau[fantomes[i_fant].l][fantomes[i_fant].c]=' ';
+  //On efface le fantôme avant de le redessiner
+  // On redessine le fantome en fonction de la pos de pacman:
+  plateau[fantomes[i_fant].l+direction.l][fantomes[i_fant.c+direction.c]]='F';
+  fantomes[i_fant].c += direction.c;
+  fantomes[i_fant].l += direction.l;
 
-        /* Même principe */
-        else if ( (p.pacman.c < p.fantomes[i].c) && (plateau[p.fantomes[i].l][p.fantomes[i].c --] != '*') )
-        {
-            p.fantomes[i].c --;
-            plateau[p.fantomes[i].l][p.fantomes[i].c] = 'F';
-        }
-
-        /* Si pacman à gauche du fantôme et case voisine non mur alors ... */
-        if ( (p.pacman.l > p.fantomes[i].l) && (plateau[p.fantomes[i].l ++][p.fantomes[i].c] != '*') )
-        {
-            p.fantomes[i].l ++;
-            plateau[p.fantomes[i].l][p.fantomes[i].c] = 'F';
-        }
-
-        /* Même principe */
-        else if ( (p.pacman.c < p.fantomes[i].c) && (plateau[p.fantomes[i].l --][p.fantomes[i].c] != '*') )
-        {
-            p.fantomes[i].l --;
-            plateau[p.fantomes[i].l][p.fantomes[i].c] = 'F';
-        }
-    }
 }
 
 //Fonction qui permet de compter le nombre de pacgommes sur le plateau
@@ -227,7 +184,7 @@ int nbpacgommes(Partie p) {
 
 
 
-void direction_possibles(Partie p,int i_fant, int dir_prec, int dir_pos[][4])
+void direction_possibles(Partie p,int i_fant, Pos dir_prec[], int dir_pos[][4])
 {
   if(p.plateau[p.fantomes[i_fant].l-1][p.fantomes[i_fant].c]=='*') {
     dir_pos[i_fant][haut]=-1;
@@ -252,7 +209,7 @@ void direction_possibles(Partie p,int i_fant, int dir_prec, int dir_pos[][4])
   } else {
    dir_pos[i_fant][gauche]=gauche;
  }
-  dir_pos[i_fant][dir_prec]=-1;
+  dir_pos[i_fant][(dir_prec[i_fant]+2)%4]=-1;
 }
 
 /******************************************/
@@ -293,7 +250,7 @@ int distance(Pos p1,Pos p2)
 	return dist;
 }
 
-int plus_court_chemin(Pos source, Pos cible,int i_fant,int dir_pos[][4])
+Pos plus_court_chemin(Pos source, Pos cible,int i_fant,Pos dir_pos[][4], Pos dir_prec[])
 {
 	Pos voisin_haut = {source.l-1, source.c}; //case au dessus de la source
 	Pos voisin_bas = {source.l+1, source.c}; //case en dessous de la source
@@ -310,19 +267,27 @@ int plus_court_chemin(Pos source, Pos cible,int i_fant,int dir_pos[][4])
 	 * cad la plus petite distance :                            */
 	for(int i = 0; i<4 ; i++)
 	{
-		if (dir_pos[i_fant][i]!=-1 && directions[i] < lpc)
+		if (dir_pos[i_fant][i]!=-1 && directions[i] <= lpc)
 			lpc = directions[i];
 	}
 	/* Conditions pour retourner la case voisine la plus proche
 	 * de la cible                                               */
-	if (lpc == directions[0])
+	if (lpc == directions[0]) {
+    dir_prec[i_fant]=haut;
 		return haut;
-	else if (lpc == directions[1])
+  }
+	else if (lpc == directions[1]) {
+    dir_prec[i_fant]=droite;
 		return droite;
-	else if (lpc == directions[2])
+  }
+	else if (lpc == directions[2]) {
+    dir_prec[i_fant]=bas;
 		return bas;
-  else
+  }
+  else if (lpc == directions[3]){
+    dir_prec[i_fant]=gauche;
     return gauche;
+  }
 }
 
 

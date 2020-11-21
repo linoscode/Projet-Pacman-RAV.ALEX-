@@ -23,7 +23,8 @@ typedef struct partie {
     int     C; // le nb de colonne du plateau de jeu
     Pos     pacman; // la position de Pacman dans le plateau
     Pos     fantomes[NBFANTOMES];
-    int     dir_fant[NBFANTOMES];
+    Pos     dir_fant[NBFANTOMES];
+    Pos     dir_prec[NBFANTOMES];
     int     dir_pos[NBFANTOMES][4]; // direction précédente des fantomes
     int     nbbonus; // les positions de chaque fantôme
     int     nbpacgommes; // le nombre de bonus restants à manger
