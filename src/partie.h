@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NBFANTOMES  1 // nombres de fantômes dans les plateaux chargés
+#define NBFANTOMES  4 // nombres de fantômes dans les plateaux chargés
 
 // STRUCTURES
 /* Structure Pos: permet de stocker un couple ligne/colonne                   */

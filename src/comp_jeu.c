@@ -60,13 +60,16 @@ void demarrer_partie(Partie p ) {
   {
     touche = attendre_touche_duree(1);
     dir = touche2pos(touche);
-    direction_possibles(p,0,p.dir_prec,p.dir_pos);
-    p.target[0].c=1;
-    p.target[0].l=1;
-    p.dir_fant[0] = plus_court_chemin(p.fantomes[0], p.target[0], 0,
-                                        p.dir_pos, p.dir_prec);
-    printf("dir fant %d %d \n", p.dir_fant[0].c, p.dir_fant[0].l);
-    deplacer_fantome_plateau(p.fantomes,p.plateau,0,p.dir_fant[0]);
+
+    for(int i = 0; i<NBFANTOMES;i++) {
+      direction_possibles(p,i,p.dir_prec,p.dir_pos);
+      p.target[i].c=1;
+      p.target[i].l=1;
+      p.dir_fant[i] = plus_court_chemin(p.fantomes[i], p.target[i], i,
+                                          p.dir_pos, p.dir_prec);
+      printf("dir fant %d %d \n", p.dir_fant[i].c, p.dir_fant[i].l);
+      deplacer_fantome_plateau(p.fantomes,p.plateau,i,p.dir_fant[i]);
+    }
     p.pacman = deplacements_visuels(p, p.plateau, dir);
   }
 }
