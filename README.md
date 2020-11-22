@@ -5,6 +5,11 @@ PROJET PACMAN
 INF1-A2
 ______________________________________________________________________________________________________________________________________________________________________
 
+LANCEMENT DU JEU :
+	1- Se rendre dans la racine du dossier du projet et faire un make.
+	2- Rajouter des droits d'éxecution pour pacman.sh avec : chmod +x pacman.sh
+	3- Puis executer pacman.sh. 
+
 TRAVAIL ACCOMPLI :
 	Organisation des fichiers :
 		-Comp_jeu.c = définition de toutes les fonctions utilisées.
