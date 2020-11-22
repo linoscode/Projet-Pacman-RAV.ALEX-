@@ -1,5 +1,6 @@
 #include "./comp_jeu.h"
 
+/* Definition des vecteurs de directions en tant que variables globales */
 const Pos haut    = {-1,0};
 const Pos bas     = { 1,0};
 const Pos gauche  = {0,-1};
