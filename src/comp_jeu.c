@@ -6,9 +6,71 @@ const Pos gauche  = {0,-1};
 const Pos droite  = {0, 1};
 const Pos def = {0, 0};
 
+/* Fonction qui permet de démarrer la partie et réunie tous les comportements du jeu*/
+int demarrer_partie(Partie p )
+{
+  /* On affiche le plateau sur la fenêtre */
+  dessiner_plateau(p, p.plateau);
+  actualiser();
+
+  // Algorithme du jeu :
+
+  /* Déclaration des variables*/
+  int touche; //Stock la touche préssée
+  p.tours_bonus=40; // Stock le nombre de tour restant en mode bonus
+  p.gameov=0; //Variable pour savoir s'il y'a gameover ou pas
+
+  Pos dir_pacman = def;//On initialise la direction de pacman à immobile
+
+  while(touche != SDLK_ESCAPE && !p.gameov)
+  {
+
+    touche = evenement_touche(touche);
+    //On converti la touche pressée en vecteur de direction
+    dir_pacman = touche2pos(touche);
+
+    //Si pacman n'est pas en mode bonus alors
+    if ( p.tours_bonus == 0 ) {
+      //On vérifie si il a mangé un bonus
+      p.tours_bonus = isbonus(p,dir_pacman);
+
+      /*On assigne les cible de chaque fantome pour qu'ils essaient de manger
+      pacman */
+      p.target[0]=target_pacman(p);
+      p.target[1]=target_devant_pacman(p, dir_pacman);
+      p.target[2]=target_oppose(p, dir_pacman, 0);
+      p.target[3]=target_pacman_clyde(p,3);
+      /* On vérifie si pacman s'est fait mangé */
+      p.gameov = game_over(p);
+      /*On déplace tous les fantomes suivant les cibles précédemment définies*/
+      p=deplacer_fantome(p);
+    }
+    else
+    {
+      /*Pacman a est en mode bonus alors, les fantôme se déplacent
+      aléatoirement*/
+      deplacements_aleatoire(p,p.target);
+      p=deplacer_fantome(p);
+      /*On enlève un tour de bonus*/
+      p.tours_bonus--;
+    }
+
+    /* On raffraichit l'affichage des pacmangommes présents sur le plateau */
+    p.nbpacgommes=rafraichir(p);
+    p.pacman = deplacements_visuels(p, p.plateau, dir_pacman);
+
+    /*Si tous les pacgommes ont été mangé alors on sort de la boucle*/
+    if(p.nbpacgommes==0)
+      break;
+  }
+  return p.gameov;
+}
+
 /***********************************/
 /* Fonctions visuelles             */
 /***********************************/
+
+/*Permet d'afficher le splash screen */
 void demarrage(void)
 {
     Point coin = { 0 , 0 } ;
@@ -27,197 +89,82 @@ void demarrage(void)
     dessiner_rectangle(coin, LONG, LARG, noir) ;
 }
 
-int rafraichir(Partie p) {
-  int n=0;
-  for(int i=0; i<p.L;i++)
-  {
-    for(int j=0;j<p.C;j++)
-    {
-      if (p.plateau[i][j] == '.') // GUM = POINT BLANC
-      {
-          Pos gum = {i, j};
-          changer_pixel(pos2centre(gum,CASE), blanc);
-          n++;
-      }
-      if (p.plateau[i][j] == 'B') // BONUS = DISQUE ROUGE
-      {
-          Pos bonus = {i, j};
-          dessiner_disque(pos2centre(bonus,CASE), TPACMAN, rouge);
-          n++;
-      }
-    }
-  }
-  return n;
-}
 
-int demarrer_partie(Partie p ) {
-  dessiner_plateau(p, p.plateau);
-  actualiser();
-
-  // Algorithme du jeu :
-  int touche;
-  int tours_bonus=20;
-  int gameov=0;
-
-  Pos dir_pacman = {0,0};
-  while(touche != SDLK_ESCAPE && !gameov)
-  {
-    reinitialiser_evenements();
-    traiter_evenements();
-    if(touche_a_ete_pressee(SDLK_UP))
-      { touche = SDLK_UP; }
-    else if(touche_a_ete_pressee(SDLK_DOWN))
-      { touche = SDLK_DOWN; }
-    else if(touche_a_ete_pressee(SDLK_LEFT))
-      { touche = SDLK_LEFT; }
-    else if(touche_a_ete_pressee(SDLK_RIGHT))
-      { touche = SDLK_RIGHT; }
-    else {
-      touche = touche;
-    }
-
-    dir_pacman = touche2pos(touche);
-    if ( tours_bonus == 0 ) {
-      tours_bonus = isbonus(p,dir_pacman);
-
-      //assignation des targets
-      p.target[0]=target_pacman(p);
-      p.target[1]=target_devant_pacman(p, dir_pacman);
-      p.target[2]=target_oppose(p, dir_pacman, 0);
-      p.target[3]=target_pacman(p);
-      p=deplacer_fantome(p);
-    } else {
-      for(int i = 0; i<NBFANTOMES;i++) {
-        p.target[i].c=entier_aleatoire(3)-1;
-        p.target[i].l=entier_aleatoire(3)-1;
-      }
-      p=deplacer_fantome(p);
-      tours_bonus--;
-    }
-    p.nbpacgommes=rafraichir(p);
-    p.pacman = deplacements_visuels(p, p.plateau, dir_pacman);
-    gameov = game_over(p);
-    if(p.nbpacgommes==0)
-      break;
-  }
-  return gameov;
-}
-
-int game_over(Partie p)
+/* On actualise visuellement la position des personnages avec un effet
+de déplacement fluide et non case par case*/
+Pos deplacements_visuels(Partie p, char **plateau, Pos direction)
 {
-  int perdu;
-    for(int i_fant = 0 ; i_fant < NBFANTOMES ; i_fant++)
-    {
-      perdu = areEqual(p.pacman, p.fantomes[i_fant]);
-      if(perdu) //si t'as perdu
-          return 1; //game over = 1 (est vrai)
-    }
-    return 0; // t'as pas perdu
-}
+  Couleur fantomes[4]= {rouge,pink,bleu,jaune};
 
-Pos target_oppose(Partie p, Pos dir,int i_fant)
-{
-    Pos cible;
-    //Combien de LIGNES séparent fantomes[i_fant] et pacman.
-    int dist_lignes = p.fantomes[i_fant].l - p.pacman.l ;
-    if (dist_lignes < 0)
-        dist_lignes *= -1; //prcq une distance est positive.
-    //Combien de COLONNES séparent fantomes[i_fant] et pacman.
-    int dist_colonnes = p.fantomes[i_fant].c - p.pacman.c ;
-    if (dist_colonnes < 0)
-        dist_colonnes *= -1;
+  int pdone = 0; //variable pour savoir si le déplacement visuel de pacman est terminé
+  int fdone = 0; //variable pour savoir si le déplacement des fantomes est terminé
 
-    /*Si le fantôme est AU DESSUS de pacman :        */
-    if(p.fantomes[i_fant].l < p.pacman.l)
-        //alors cible en dessous pacman :
-        cible.l = (p.pacman.l + dist_lignes)%p.L;
-    else
-        //SINON cible au dessus de pacman
-        cible.l = (p.pacman.l - dist_lignes)%p.L;
-
-    /*Si le fantôme est A GAUCHE de pacman :        */
-    if(p.fantomes[i_fant].c < p.pacman.c)
-        //alors cible à droite de pacman
-        cible.c = (p.pacman.c + dist_colonnes)%p.C;
-    else
-        //SINON cible à gauche de pacman
-        cible.c = (p.pacman.c - dist_colonnes)%p.C;
-
-    return cible;
-}
-
-Pos target_pacman(Partie p)
-{
-    Pos cible = {p.pacman.l, p.pacman.c} ;
-    return cible ;
-}
-
-Pos target_devant_pacman(Partie p, Pos dir)
-{
-    Pos cible = {p.pacman.l + 2*dir.l, p.pacman.c + 2*dir.l};
-    return cible;
-}
-
-Partie deplacer_fantome(Partie p) {
-  for(int i = 0; i<NBFANTOMES  ;i++) {
-    direction_possibles(p,i,p.dir_prec,p.dir_pos);
-
-    p.dir_fant[i] = plus_court_chemin(p.fantomes[i], p.target[i], i,
-                                        p.dir_pos, p.dir_prec);
-    deplacer_fantome_plateau(p,p.fantomes,i,p.dir_fant[i]);
-  }
-  return p;
-}
-
-int isbonus(Partie p, Pos dir) {
-  if(p.plateau[p.pacman.l+dir.l][p.pacman.c+dir.c]=='B') {
-    return 20;
-  }
-  return 0;
-}
-
-Pos deplacements_visuels(Partie p, char **plateau, Pos direction) {
-
-  int pdone = 0;
-  int fdone = 0;
-
-	Point pacman;
-	Point pacman_cible;
+	Point pacman; //coordonnées de pacman actuelle
+	Point pacman_cible; //coordonnées de là où il va se déplacer
 
   //Calcul des coordonnées de pacman sur la fenêtre
   pacman = pos2centre(p.pacman,CASE);
-  //Calcul des coordonnées de la prochaine position de pacman dans la fenêtre
+
+  //Calcul de la prochaine position sur le plateau de pacman
   p.pacman = deplacer_pacman_plateau(p,plateau,direction);
 
+  /*Conversion des coordonnées de la prochaine position sur le plateau de pacman
+  en coordonnées sur la fênetre*/
   pacman_cible = pos2centre(p.pacman,CASE);
 
+  /*Déclaration des variables qui stockeront les coordonnées des fantomes sur la
+  fenêtre pour leur position actuelle et leur cible */
   Point p_fant[NBFANTOMES];
   Point p_fant_cible[NBFANTOMES];
 
-  for(int i=0; i<NBFANTOMES;i++) {
-    p_fant_cible[i] = pos2point(p.fantomes[i],CASE);
+  for(int i=0; i<NBFANTOMES;i++)
+  {
+    /*Conversion des des coordonnées des fantomessur le plateau en coordonnées
+    sur la fenêtre pour leur position actuelle et leur cible */
+    p_fant_cible[i] = pos2coin(p.fantomes[i],CASE);
     p_fant[i] = p_fant_cible[i];
+    /*On détermine la postion actuelle en fesant le chemin inverse en utilisant
+    la dernière direction prise qui est stockée en mémoire */
     p_fant[i].x -= p.dir_fant[i].c*CASE;
     p_fant[i].y -= p.dir_fant[i].l*CASE;
   }
 
 
-  //On déplace pacman tant qu'il n'a pas atteint les coordonnées de la case suivante
-  while (!pdone || !fdone) {
+  /* On effectue les déplacement visuels tant que tout le monden'a pas atteint
+   * les coordonnées de la case suivante */
+  while (!pdone || !fdone)
+  {
     for(int i=0; i<NBFANTOMES;i++) {
+      /* Si le fantôme n'a pas atteint sa cible alors */
       if (p_fant[i].x != p_fant_cible[i].x || p_fant[i].y != p_fant_cible[i].y) {
-          dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, noir);
-          if( p_fant[i].x > p.C*CASE ) {
-            p_fant[i].x=0;
-          }
-          else if( p_fant[i].x < 0 ) {
-            p_fant[i].x=p.C*CASE;
-          } else {
+        /*Le déplacement visuel des fantomes n'est pas terminé */
+        fdone = 0;
+        /* On efface le fantome à sa position précédente */
+        dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, noir);
+          /*Si il a traversé un tunnel on le dessine de l'autre côté */
+        if( p_fant[i].x > p.C*CASE )
+        {
+          p_fant[i].x=0;
+        }
+        else if( p_fant[i].x < 0 )
+        {
+          p_fant[i].x=p.C*CASE;
+        }
+        /*S'il n'a pas traversé de tunnel il se déplacement normalement*/
+        else
+        {
           p_fant[i].x += p.dir_fant[i].c;
           p_fant[i].y += p.dir_fant[i].l;
-          }
-          dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, pink);
-    } else {
+        }
+        /*S'il y'a un qui fait effet bonus, ils prennent la couleur bleu*/
+        if(p.tours_bonus!=0) {
+          dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, aquamarine);
+        }
+        /*Sinon ils prennent leur couleur normale*/
+        else {
+          dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, fantomes[i]);
+        }
+      } else {
       fdone = 1;
     }
   }
@@ -243,8 +190,33 @@ Pos deplacements_visuels(Partie p, char **plateau, Pos direction) {
     de la vitesse de calcul */
     attente(FREQ);
   }
+  /*On récupères les nouvelles coordonnées de pacman */
   return p.pacman;
 
+}
+
+int rafraichir(Partie p) {
+  int n=0;
+  for(int i=0; i<p.L;i++)
+  {
+    for(int j=0;j<p.C;j++)
+    {
+      if (p.plateau[i][j] == '.') // GUM = POINT BLANC
+      {
+          Pos gum = {i, j};
+          changer_pixel(pos2centre(gum,CASE), blanc);
+          n++;
+      }
+      if (p.plateau[i][j] == 'B') // BONUS = DISQUE ROUGE
+      {
+          Pos bonus = {i, j};
+          dessiner_disque(pos2centre(bonus,CASE), TPACMAN, rouge);
+          n++;
+      }
+    }
+  }
+  /*On retourne le nombre d'élements sur le plateau*/
+  return n;
 }
 
 
@@ -274,7 +246,7 @@ void dessiner_plateau(Partie p, char **plateau)
             else if (p.plateau[i][j] == 'F') // à voir si on supprime, FANTOME = RECTANGLE ROSE
             {
                 Pos fantome = {i, j};
-                dessiner_rectangle(pos2point(fantome, CASE), TFANTOME, TFANTOME, pink);
+                dessiner_rectangle(pos2coin(fantome, CASE), TFANTOME, TFANTOME, pink);
             }
 
             else if (p.plateau[i][j] == 'B') // BONUS = DISQUE ROUGE
@@ -288,6 +260,130 @@ void dessiner_plateau(Partie p, char **plateau)
 /******************************************/
 /* Fonctions modélisant les règles du jeu */
 /******************************************/
+
+int evenement_touche(int touche) {
+  reinitialiser_evenements();
+  traiter_evenements();
+  if(touche_a_ete_pressee(SDLK_UP))
+    { touche = SDLK_UP; }
+  else if(touche_a_ete_pressee(SDLK_DOWN))
+    { touche = SDLK_DOWN; }
+  else if(touche_a_ete_pressee(SDLK_LEFT))
+    { touche = SDLK_LEFT; }
+  else if(touche_a_ete_pressee(SDLK_RIGHT))
+    { touche = SDLK_RIGHT; }
+  else {
+    touche = touche;
+  }
+  return touche;
+}
+
+void deplacements_aleatoire(Partie p,Pos *target) {
+  for(int i = 0; i<NBFANTOMES;i++) {
+    target[i].c=entier_aleatoire(p.C);
+    target[i].l=entier_aleatoire(p.L);
+  }
+}
+
+int game_over(Partie p)
+{
+  int perdu;
+    for(int i_fant = 0 ; i_fant < NBFANTOMES ; i_fant++)
+    {
+      perdu = areEqual(p.pacman, p.fantomes[i_fant]);
+      if(perdu) //si t'as perdu
+          return 1; //game over = 1 (est vrai)
+    }
+    return 0; // t'as pas perdu
+}
+
+
+
+/*Permet de déplacer tous les fantomes*/
+Partie deplacer_fantome(Partie p)
+{
+  for(int i = 0; i<NBFANTOMES  ;i++)
+  {
+    /* On vérifie les direction possible que peut prendre chaque fantome */
+    direction_possibles(p, i, p.dir_prec, p.dir_pos);
+    /* On détermine la meilleure direction pour se rapprocher de leurs cibles */
+    p.dir_fant[i] = plus_court_chemin(p.fantomes[i], p.target[i], i,
+                                        p.dir_pos, p.dir_prec);
+    /*Ensuite on déplace les fantomes suivant les directions choisies précédemment*/
+    deplacer_fantome_plateau(p, p.fantomes, i, p.dir_fant[i]);
+  }
+
+  return p;
+}
+
+Pos target_oppose(Partie p, Pos dir,int i_fant)
+{
+    Pos cible;
+    //Combien de LIGNES séparent fantomes[i_fant] et pacman.
+    int dist_lignes = p.fantomes[i_fant].l - p.pacman.l ;
+    if ( dist_lignes < 0 )
+        dist_lignes *= -1; //prcq une distance est positive.
+    //Combien de COLONNES séparent fantomes[i_fant] et pacman.
+    int dist_colonnes = p.fantomes[i_fant].c - p.pacman.c ;
+    if ( dist_colonnes < 0 )
+        dist_colonnes *= -1;
+
+    /*Si le fantôme est AU DESSUS de pacman :        */
+    if( p.fantomes[i_fant].l < p.pacman.l )
+        //alors cible en dessous pacman :
+        cible.l = ( p.pacman.l + dist_lignes )%p.L;
+    else
+        //SINON cible au dessus de pacman
+        cible.l = ( p.pacman.l - dist_lignes )%p.L;
+
+    /*Si le fantôme est A GAUCHE de pacman :        */
+    if(p.fantomes[i_fant].c < p.pacman.c)
+        //alors cible à droite de pacman
+        cible.c = ( p.pacman.c + dist_colonnes )%p.C;
+    else
+        //SINON cible à gauche de pacman
+        cible.c = ( p.pacman.c - dist_colonnes )%p.C;
+
+    return cible;
+}
+
+/* Permet de définir la cible comme la case ou se trouve pacman */
+Pos target_pacman(Partie p)
+{
+    Pos cible = { p.pacman.l , p.pacman.c } ;
+    return cible ;
+}
+
+/*Modélise la cible et le comportement de Clyde*/
+Pos target_pacman_clyde(Partie p,int i_fant) {
+  Pos cible = { p.pacman.l , p.pacman.c } ;
+  /*Si Clyde se trouve à moins de 8 case de pacman alors
+  il cible son coin du plateau (scatter mode)            */
+  if(distance(p.pacman, p.fantomes[i_fant])<8) {
+    cible.c = 1;
+    cible.l = p.L-1;
+  }
+  return cible ;
+}
+
+/* Permet de définir la cible comme 2 cases devant la case où se trouve pacman */
+Pos target_devant_pacman(Partie p, Pos dir)
+{
+    Pos cible = { p.pacman.l + 2*dir.l , p.pacman.c + 2*dir.l };
+    return cible;
+}
+
+/*Permet de vérifier si la case sur laquelle pacman va se déplacer est un bonus*/
+int isbonus(Partie p, Pos dir)
+{
+  if(p.plateau[p.pacman.l+dir.l][p.pacman.c+dir.c]=='B')
+  {
+    return 20;
+  }
+  return 0;
+}
+
+
 Pos touche2pos(int touche) {
   Pos dir;
   switch ( touche )
@@ -423,6 +519,10 @@ Point pos2point(Pos p,int taille)
     return point;
 }
 
+Point pos2coin(Pos p,int taille) {
+  Point point = {p.c*taille + TFANTOME/2 , p.l*taille + TFANTOME/2};
+  return point;
+}
 // DEFINITION POS2COIN (rectangles)
 
 Point pos2centre(Pos p, int taille)
@@ -454,9 +554,10 @@ int distance(Pos p1,Pos p2)
 
 Pos plus_court_chemin(Pos source, Pos cible,int i_fant,Pos dir_pos[][4], Pos dir_prec[])
 {
-	Pos voisin_haut = {source.l-1, source.c};   //case au dessus de la source
-	Pos voisin_bas = {source.l+1, source.c};    //case en dessous de la source
-	Pos voisin_gauche = {source.l, source.c-1}; //case voisine vers la source
+  /* On détermine les coordonnées des cases voisines de la source */
+	Pos voisin_haut = {source.l-1, source.c};
+	Pos voisin_bas = {source.l+1, source.c};
+	Pos voisin_gauche = {source.l, source.c-1};
   Pos voisin_droite = {source.l, source.c+1};
 
 	/* Tableau stockant la distance entre les cases voisines
@@ -473,7 +574,8 @@ Pos plus_court_chemin(Pos source, Pos cible,int i_fant,Pos dir_pos[][4], Pos dir
 			lpc = directions[i];
     }
 	}
-
+  /* Boucle pour déterminer quelle direction est associée à la plus petite
+   * distance                                                             */
   for(int i = 0; i<4;i++) {
     if(!areEqual(dir_pos[i_fant][i],def) && lpc == directions[i]) {
       dir_prec[i_fant]=opposite(dir_pos[i_fant][i]);
@@ -483,6 +585,8 @@ Pos plus_court_chemin(Pos source, Pos cible,int i_fant,Pos dir_pos[][4], Pos dir
   return def;
 }
 
+/* Fonction pour avoir le vecteur de direction opposé d'un autre vecteur
+ * de direction                                                         */
 Pos opposite(Pos d) {
   if(areEqual(d,haut)) {
     return bas;
@@ -499,6 +603,7 @@ Pos opposite(Pos d) {
     printf("No decision made\n");
     return def;
   }
+  return def;
 }
 
 

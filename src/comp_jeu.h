@@ -23,11 +23,17 @@ void deplacer_fantome_plateau(Partie p,Pos fantomes[], int i_fant, Pos direction
 
 Pos touche2pos(int touche);
 
+int evenement_touche();
+
 Pos target_oppose(Partie p, Pos dir,int i_fant);
 
 Pos target_devant_pacman(Partie p, Pos dir);
 
 Pos target_pacman(Partie p);
+
+Pos target_pacman_clyde(Partie p,int i_fant);
+
+void deplacements_aleatoire(Partie p,Pos *target);
 
 int rafraichir(Partie p);
 
@@ -70,6 +76,8 @@ Point pos2point(Pos p, int taille);
 /* idem mais pour les rectangles, renvoie leur centre. */
 Point pos2centre(Pos p, int taille);
 
+Point pos2coin(Pos p,int taille);
+
 int game_over(Partie p);
 
 //Définition des directions
@@ -82,7 +90,7 @@ int game_over(Partie p);
 
 
 //Pour l'affichage
-#define FREQ 7
+#define FREQ 8
 #define LONG 800
 #define LARG 600
 
