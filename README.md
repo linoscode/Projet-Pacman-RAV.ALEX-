@@ -46,7 +46,8 @@ TRAVAIL ACCOMPLI :
 	Bilan : Jeu en temps réel, chaque fantôme a son comportement.
 			Le chargement des niveaux se fait automatiquement une 
 			fois que tous les pacgommes ont été mangés. Les bonus 
-			font que les fantômes visent une case aléatoire.
+			font que les fantômes deviennent bleus, ne peuvent plus 
+			manger pacman et ciblent des cases aléatoires.
 	
 
 PROBLEMES RENCONTRES :
