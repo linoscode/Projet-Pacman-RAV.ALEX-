@@ -49,8 +49,8 @@ int demarrer_partie(Partie p )
       aléatoirement*/
       deplacements_aleatoire(p,p.target);
       /*On vérifie regarde si ils ont été mangé */
-      /*On déplace tous les fantomes suivant les cibles précédemment définies*/
       estMange(p, p.isMange);
+      /*On déplace tous les fantomes suivant les cibles précédemment définies*/
       p=deplacer_fantome(p);
       /*On enlève un tour de bonus*/
       p.tours_bonus--;
