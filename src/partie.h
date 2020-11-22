@@ -28,6 +28,8 @@ typedef struct partie {
     Pos     dir_prec[NBFANTOMES];
     Pos     dir_pos[NBFANTOMES][4]; // direction précédente des fantomes
     int     nbbonus; // les positions de chaque fantôme
+    int     gameov;
+    int     tours_bonus;
     int     nbpacgommes; // le nombre de bonus restants à manger
     // ...et vous pouvez ajouter tout ce dont vous avez besoin
     } Partie;
