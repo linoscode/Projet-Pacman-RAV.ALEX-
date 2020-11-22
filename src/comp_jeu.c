@@ -48,6 +48,9 @@ int demarrer_partie(Partie p )
       /*Pacman a est en mode bonus alors, les fantôme se déplacent
       aléatoirement*/
       deplacements_aleatoire(p,p.target);
+      /*On vérifie regarde si ils ont été mangé */
+      /*On déplace tous les fantomes suivant les cibles précédemment définies*/
+      estMange(p, p.isMange);
       p=deplacer_fantome(p);
       /*On enlève un tour de bonus*/
       p.tours_bonus--;
@@ -56,6 +59,7 @@ int demarrer_partie(Partie p )
     /* On raffraichit l'affichage des pacmangommes présents sur le plateau */
     p.nbpacgommes=rafraichir(p);
     p.pacman = deplacements_visuels(p, p.plateau, dir_pacman);
+
 
     /*Si tous les pacgommes ont été mangé alors on sort de la boucle*/
     if(p.nbpacgommes==0)
@@ -139,21 +143,11 @@ Pos deplacements_visuels(Partie p, char **plateau, Pos direction)
         fdone = 0;
         /* On efface le fantome à sa position précédente */
         dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, noir);
-          /*Si il a traversé un tunnel on le dessine de l'autre côté */
-        if( p_fant[i].x > p.C*CASE )
-        {
-          p_fant[i].x=0;
-        }
-        else if( p_fant[i].x < 0 )
-        {
-          p_fant[i].x=p.C*CASE;
-        }
-        /*S'il n'a pas traversé de tunnel il se déplacement normalement*/
-        else
-        {
-          p_fant[i].x += p.dir_fant[i].c;
-          p_fant[i].y += p.dir_fant[i].l;
-        }
+        /* On déplace le fantome visuellement selon le vecteur de direction
+         * du fantome */
+        p_fant[i].x += p.dir_fant[i].c;
+        p_fant[i].y += p.dir_fant[i].l;
+
         /*S'il y'a un qui fait effet bonus, ils prennent la couleur bleu*/
         if(p.tours_bonus!=0) {
           dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, aquamarine);
@@ -286,14 +280,25 @@ void deplacements_aleatoire(Partie p,Pos *target) {
     target[i].l=entier_aleatoire(p.L);
   }
 }
+void estMange(Partie p, int *isMange) {
+  for(int i = 0; i<NBFANTOMES;i++) {
+    if(areEqual(p.pacman,p.fantomes[i])) {
+      isMange[i]=1;
+    } else {
+      isMange[i]=0;
+    }
+  }
+}
 
+/*Assigne toutes les targets qui modélise le comportement
+de chaque fantome*/
 void modeChasse(Partie p,Pos * target,Pos dir_pacman) {
   target[0]=target_pacman(p);
   target[1]=target_devant_pacman(p, dir_pacman);
   target[2]=target_oppose(p, dir_pacman, 0);
   target[3]=target_pacman_clyde(p,3);
 }
-
+/* Vérifie si la partie est perdue */
 int game_over(Partie p)
 {
   int perdu;
@@ -420,7 +425,11 @@ Pos deplacer_pacman_plateau(Partie p,char **plateau,Pos direction) {
 /* Gère les déplacements des fantomes en fonction de la direction choisie */
 void deplacer_fantome_plateau(Partie p,Pos fantomes[], int i_fant, Pos direction)
 {
-  if(fantomes[i_fant].c == p.C)
+  if (p.isMange[i_fant]==1) {
+    fantomes[i_fant].l=13;
+    fantomes[i_fant].c=10;
+  }
+  else if(fantomes[i_fant].c == p.C)
   {
     fantomes[i_fant].c=1;
   }
@@ -484,6 +493,7 @@ void direction_possibles(Partie p,int i_fant, Pos dir_prec[], Pos dir_pos[][4])
 /* Fonctions de calculs                   */
 /******************************************/
 
+/* Vérifie si les positions sont égales */
 int areEqual(Pos p1, Pos p2) {
   if(p1.c==p2.c && p2.l==p1.l) {
     return 1;
@@ -608,6 +618,7 @@ Pos opposite(Pos d) {
   return def;
 }
 
+/*récupère le vecteur direction correspondant à chaque touche directionnelle */
 Pos touche2pos(int touche) {
   Pos dir;
   switch ( touche )

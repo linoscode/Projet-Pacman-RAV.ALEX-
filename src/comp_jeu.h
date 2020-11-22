@@ -52,6 +52,11 @@ Pos target_pacman_clyde(Partie p,int i_fant);
 /*Définie les cibles des fantomes aléatoirement */
 void deplacements_aleatoire(Partie p,Pos *target);
 
+/*Vérifie si un des fantomes a été mangé */
+void estMange(Partie p, int *isMange);
+
+/*Assigne toutes les targets qui modélise le comportement
+de chaque fantome*/
 void modeChasse(Partie p,Pos * target, Pos dir_pacman);
 
 /*Permet de réafficher tous les bonus et pacgommes et compte le nombre de ceux-ci*/
@@ -91,25 +96,32 @@ void dessiner_plateau(Partie p, char **plateau);
  /******************************************/
  /* Fonctions de calculs                   */
  /******************************************/
-
+/* Position du coin haut gauche de la case sur la fenetre*/
 Point pos2point(Pos p, int taille);
 
-/* idem mais pour les rectangles, renvoie leur centre. */
+/* Position du centre de la case*/
 Point pos2centre(Pos p, int taille);
 
+/* position du coin haut gauche des carré représentants les fantomes*/
 Point pos2coin(Pos p,int taille);
 
+/* Vérifie si la partie est perdue */
 int game_over(Partie p);
 
 /* Calcule la distance à vol d'oiseau entre 2 positions */
 int distance(Pos p1,Pos p2);
 
+/* Vérifie si les positions sont égales */
 int areEqual(Pos p1, Pos p2);
 
+/*Calcul le vecteur opposé*/
 Pos opposite(Pos d);
 
+/*récupère le vecteur direction correspondant à chaque touche directionnelle */
 Pos touche2pos(int touche);
 
+/*Permet de récupérer l'indice du tableau dir_pos qui correspond
+à une directions une direction donnée*/
 int i2dir(Pos dir);
 
 /******************************************/

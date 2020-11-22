@@ -22,14 +22,15 @@ typedef struct partie {
     int     L; // le nb de lignes du plateau de jeu
     int     C; // le nb de colonne du plateau de jeu
     Pos     pacman; // la position de Pacman dans le plateau
-    Pos     fantomes[NBFANTOMES];
-    Pos     target[NBFANTOMES];
-    Pos     dir_fant[NBFANTOMES];
-    Pos     dir_prec[NBFANTOMES];
+    Pos     fantomes[NBFANTOMES];//position du fantome
+    int     isMange[NBFANTOMES];//variable pour savoir si le fantome a été mangé
+    Pos     target[NBFANTOMES];//cible du fantome
+    Pos     dir_fant[NBFANTOMES];//vecteur de direction du fantome
+    Pos     dir_prec[NBFANTOMES];//précédent vecteur de direction du fantome
     Pos     dir_pos[NBFANTOMES][4]; // direction précédente des fantomes
     int     nbbonus; // les positions de chaque fantôme
-    int     gameov;
-    int     tours_bonus;
+    int     gameov; //Etat du jeu : game over ou pas ?
+    int     tours_bonus; //Nombre tour restant en mode bonus
     int     nbpacgommes; // le nombre de bonus restants à manger
     // ...et vous pouvez ajouter tout ce dont vous avez besoin
     } Partie;
