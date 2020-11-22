@@ -5,7 +5,7 @@
 #include "./partie.h"
 #include "../lib/libgraphique.h"
 
-void demarrer_partie(Partie p );
+int demarrer_partie(Partie p );
 
 /* Change la position de pacman dans le tableau 'plateau' et
  * retourne les coordonnées tableau de pacman.               */
@@ -19,11 +19,21 @@ int nbpacgommes(Partie p);
 
 /* Gère les déplacements des fantomes en fonction de la pos de
  * pacman (comme le monstre pour l'instant                      */
-void deplacer_fantome_plateau(Pos fantomes[], char **plateau, int i_fant, Pos direction);
+void deplacer_fantome_plateau(Partie p,Pos fantomes[], int i_fant, Pos direction);
 
 Pos touche2pos(int touche);
 
+Pos target_oppose(Partie p, Pos dir,int i_fant);
 
+Pos target_devant_pacman(Partie p, Pos dir);
+
+Pos target_pacman(Partie p);
+
+int rafraichir(Partie p);
+
+int isbonus(Partie p, Pos dir);
+
+Partie deplacer_fantome(Partie p);
 
 /* Fonction déterminant la case voisine la plus proche de la cible.
  * Exemple d'utilisation : la source est 1fantôme, la cible est Pacman.
@@ -60,7 +70,8 @@ Point pos2point(Pos p, int taille);
 /* idem mais pour les rectangles, renvoie leur centre. */
 Point pos2centre(Pos p, int taille);
 
-void deplacer_hors_spawn(Pos *fantomes, char **plateau);
+int game_over(Partie p);
+
 //Définition des directions
 /*
 #define haut 0
@@ -71,7 +82,7 @@ void deplacer_hors_spawn(Pos *fantomes, char **plateau);
 
 
 //Pour l'affichage
-#define FREQ 13
+#define FREQ 7
 #define LONG 800
 #define LARG 600
 
