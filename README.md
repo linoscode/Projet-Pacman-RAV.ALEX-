@@ -62,6 +62,7 @@ BUGS CONNUS :
 	rose reste à l'entrée de celui-ci. 
 	- Très occasionnellement les fantômes traversent pacman sans 
 	provoquer de game over. 
+	- Avec un excellent timing, on peut traverser les fantômes en changeant de direction.
 	
 IDEES ORIGINALES :
 	- Affichage de présentation au démarrage.
