@@ -76,11 +76,10 @@ void demarrer_partie(Partie p ) {
       tours_bonus = isbonus(p,dir_pacman);
 
       //assignation des targets
-      for(int i = 0; i<NBFANTOMES;i++) {
-        p.target[i].c=p.pacman.c;
-        p.target[i].l=p.pacman.l;
-      }
-      p.target[1]=target_devant_pacman(p,dir_pacman);
+      p.target[0]=target_pacman(p);
+      p.target[1]=target_devant_pacman(p, dir_pacman);
+      p.target[2]=target_oppose(p, dir_pacman, 0);
+      p.target[3]=target_pacman(p);
       p=deplacer_fantome(p);
     } else {
       for(int i = 0; i<NBFANTOMES;i++) {
@@ -95,6 +94,43 @@ void demarrer_partie(Partie p ) {
     printf("%d\n", tours_bonus);
   }
 
+}
+
+Pos target_oppose(Partie p, Pos dir,int i_fant)
+{
+    Pos cible;
+    //Combien de LIGNES séparent fantomes[i_fant] et pacman.
+    int dist_lignes = p.fantomes[i_fant].l - p.pacman.l ;
+    if (dist_lignes < 0)
+        dist_lignes *= -1; //prcq une distance est positive.
+    //Combien de COLONNES séparent fantomes[i_fant] et pacman.
+    int dist_colonnes = p.fantomes[i_fant].c - p.pacman.c ;
+    if (dist_colonnes < 0)
+        dist_colonnes *= -1;
+
+    /*Si le fantôme est AU DESSUS de pacman :        */
+    if(p.fantomes[i_fant].l < p.pacman.l)
+        //alors cible en dessous pacman :
+        cible.l = (p.pacman.l + dist_lignes)%p.L;
+    else
+        //SINON cible au dessus de pacman
+        cible.l = (p.pacman.l - dist_lignes)%p.L;
+
+    /*Si le fantôme est A GAUCHE de pacman :        */
+    if(p.fantomes[i_fant].c < p.pacman.c)
+        //alors cible à droite de pacman
+        cible.c = (p.pacman.c + dist_colonnes)%p.C;
+    else
+        //SINON cible à gauche de pacman
+        cible.c = (p.pacman.c - dist_colonnes)%p.C;
+
+    return cible;
+}
+
+Pos target_pacman(Partie p)
+{
+    Pos cible = {p.pacman.l, p.pacman.c} ;
+    return cible ;
 }
 
 Pos target_devant_pacman(Partie p, Pos dir)

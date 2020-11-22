@@ -23,7 +23,11 @@ void deplacer_fantome_plateau(Partie p,Pos fantomes[], int i_fant, Pos direction
 
 Pos touche2pos(int touche);
 
+Pos target_oppose(Partie p, Pos dir,int i_fant);
+
 Pos target_devant_pacman(Partie p, Pos dir);
+
+Pos target_pacman(Partie p);
 
 void rafraichir(Partie p);
 
