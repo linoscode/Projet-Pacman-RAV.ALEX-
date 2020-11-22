@@ -44,12 +44,18 @@ int main(int argc, char **argv)
 /******************************************************************************/
 /* A PARTIR D'ICI...C'EST A VOUS DE JOUER!                                    */
 /******************************************************************************/
+/* Déclaration des variables*/
+int game_over;
 // Démarrage du jeu.
     ouvrir_fenetre(800,600);
     demarrage();
 
     // Affichage du plateau.
-    demarrer_partie(p);
+    game_over = demarrer_partie(p);
+    if (game_over) {
+      printf("Vous avez perdu !\n");
+      fermer_fenetre();
+    }
     // Fermeture du jeu.
     attendre_clic();
     fermer_fenetre();

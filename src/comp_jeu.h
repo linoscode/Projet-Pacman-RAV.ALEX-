@@ -5,7 +5,7 @@
 #include "./partie.h"
 #include "../lib/libgraphique.h"
 
-void demarrer_partie(Partie p );
+int demarrer_partie(Partie p );
 
 /* Change la position de pacman dans le tableau 'plateau' et
  * retourne les coordonnées tableau de pacman.               */
@@ -29,7 +29,7 @@ Pos target_devant_pacman(Partie p, Pos dir);
 
 Pos target_pacman(Partie p);
 
-void rafraichir(Partie p);
+int rafraichir(Partie p);
 
 int isbonus(Partie p, Pos dir);
 
@@ -69,6 +69,8 @@ Point pos2point(Pos p, int taille);
 
 /* idem mais pour les rectangles, renvoie leur centre. */
 Point pos2centre(Pos p, int taille);
+
+int game_over(Partie p);
 
 //Définition des directions
 /*

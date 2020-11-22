@@ -27,7 +27,8 @@ void demarrage(void)
     dessiner_rectangle(coin, LONG, LARG, noir) ;
 }
 
-void rafraichir(Partie p) {
+int rafraichir(Partie p) {
+  int n=0;
   for(int i=0; i<p.L;i++)
   {
     for(int j=0;j<p.C;j++)
@@ -36,26 +37,30 @@ void rafraichir(Partie p) {
       {
           Pos gum = {i, j};
           changer_pixel(pos2centre(gum,CASE), blanc);
+          n++;
       }
       if (p.plateau[i][j] == 'B') // BONUS = DISQUE ROUGE
       {
           Pos bonus = {i, j};
           dessiner_disque(pos2centre(bonus,CASE), TPACMAN, rouge);
+          n++;
       }
     }
   }
+  return n;
 }
 
-void demarrer_partie(Partie p ) {
+int demarrer_partie(Partie p ) {
   dessiner_plateau(p, p.plateau);
   actualiser();
 
   // Algorithme du jeu :
   int touche;
   int tours_bonus=0;
+  int gameov=0;
 
   Pos dir_pacman = {0,0};
-  while(touche != SDLK_ESCAPE)
+  while(touche != SDLK_ESCAPE && !gameov)
   {
     reinitialiser_evenements();
     traiter_evenements();
@@ -89,11 +94,26 @@ void demarrer_partie(Partie p ) {
       p=deplacer_fantome(p);
       tours_bonus--;
     }
-    rafraichir(p);
+    p.nbpacgommes=rafraichir(p);
     p.pacman = deplacements_visuels(p, p.plateau, dir_pacman);
-    printf("%d\n", tours_bonus);
+    printf("%d\n", p.nbpacgommes);
+    gameov = game_over(p);
+    if(p.nbpacgommes==0)
+      break;
   }
+  return gameov;
+}
 
+int game_over(Partie p)
+{
+  int perdu;
+    for(int i_fant = 0 ; i_fant < NBFANTOMES ; i_fant++)
+    {
+      perdu = areEqual(p.pacman, p.fantomes[i_fant]);
+      if(perdu) //si t'as perdu
+          return 1; //game over = 1 (est vrai)
+    }
+    return 0; // t'as pas perdu
 }
 
 Pos target_oppose(Partie p, Pos dir,int i_fant)
@@ -145,7 +165,6 @@ Partie deplacer_fantome(Partie p) {
 
     p.dir_fant[i] = plus_court_chemin(p.fantomes[i], p.target[i], i,
                                         p.dir_pos, p.dir_prec);
-    printf("dir fant %d %d \n", p.dir_fant[i].c, p.dir_fant[i].l);
     deplacer_fantome_plateau(p,p.fantomes,i,p.dir_fant[i]);
   }
   return p;
@@ -449,9 +468,6 @@ Pos plus_court_chemin(Pos source, Pos cible,int i_fant,Pos dir_pos[][4], Pos dir
 			lpc = directions[i];
     }
 	}
-  for(int i = 0; i<4 ; i++) {
-    printf("%d %d \n",dir_pos[i_fant][i].c,dir_pos[i_fant][i].l);
-  }
 
   for(int i = 0; i<4;i++) {
     if(!areEqual(dir_pos[i_fant][i],def) && lpc == directions[i]) {
