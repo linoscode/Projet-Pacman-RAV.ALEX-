@@ -59,6 +59,7 @@ int main(int argc, char **argv)
          printf("Vous avez perdu !\n");
          fermer_fenetre();
        }
+   }
       
 // Fermeture du jeu.
 attendre_clic();
