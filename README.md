@@ -10,40 +10,68 @@ TRAVAIL ACCOMPLI :
 		-Comp_jeu.c = définition de toutes les fonctions utilisées.
 		-comp_jeu.h = prototypes et explication de ces fonctions.
 		-main.c = Algorithme de jeu. (les fonctions sont appelées ici)
+		Le chargement des niveaux 3 niveaux se succède à l'aide d'une 
+		boucle.
 		-main.h = inclut les librairies utiles.
 		-partie.c = le même que dans l'archive. 
 			Aucune modification apportée.
 		-partie.h = le même que dans l'archive. 
-			Ajout de 2 champs pour la direction à prendre des fantômes. 
-	Fonctions :
-		-deplacer_pacman_plateau() 
-		-deplacer_pacman_visuel()
-		-deplacer_fantome_plateau(), algo naïf (comme le monstre)
-		-afficher_plan().
-		-dessiner_plateau().
-		-pos2point() / pos2centre().
-		-demarrage().
-		-plus_court_chemin(), pour le déplacement des fantômes.
-		-distance(), facilite plus_court_chemin.
+			Ajout de champs.
+			 
+	Fonctions (toutes décrites dans comp_jeu.h):
+		-int demarrer_partie();
+		-Pos deplacer_pacman_plateau();
+		-Pos deplacements_visuels();
+		-int nbpacgommes();
+		-void deplacer_fantome_plateau();
+		-Pos touche2pos();
+		-Pos target_oppose();
+		-Pos target_devant_pacman();
+		-Pos target_pacman();
+		-int rafraichir();
+		-int isbonus();
+		-Partie deplacer_fantome();
+		-Pos plus_court_chemin();
+		-int distance();
+		-int areEqual();
+		-Pos opposite();
+		-void directions_possibles();
+		-void afficher_plan();
+		-void demarrage();
+		-void dessiner_plateau();
+		-Point pos2point();
+		-Point pos2centre();
+		-int game_over();
+		
+	Bilan : Jeu en temps réel, chaque fantôme a son comportement.
+			Le chargement des niveaux se fait automatiquement une 
+			fois que tous les pacgommes ont été mangés. Les bonus 
+			font que les fantômes visent une case aléatoire.
 	
 
 PROBLEMES RENCONTRES :
-	- Algorithme du plus court chemin :
+	- Plateau s'affichait en miniature en haut à gauche.
+	- Fantômes mangeaient les bonus.
+	- Fantomes mangeaient les murs.
+	- Fantômes se téléportaient.
+	- Fantomes passaient par le tunnel puis sortaient du plateau.
+	- Affichage fantôme bug.
 
 BUGS CONNUS :
-	- Plateau affiché en miniature, sur un espace de la taille indiquée
-	dans le fichier test.txt (27x21) dans le coin supérieur gauche.
-	Oubli de calculer la taille dans les fonctions pos2point, pos2centre.
-	Corrigé.
-	- Déplacement pacman, non prise en compte des murs. 
-	Corrigé.
+	- Bug visuel : lorsqu'un fantôme passe dans un tunnel, un carré
+	rose reste à l'entrée de celui-ci. 
+	- Très occasionnellement les fantômes traversent pacman sans 
+	provoquer de game over. 
 	
 IDEES ORIGINALES :
-	- Affichage de présentation au démarrage 
-	- Utiliser l'algorithme de plus court chemin pour le déplacement
-	des fantômes plutôt que l'algo naïf
-	-Déplacement des fantômes en temps réel.
-	-Afficher les commandes à droite du plateau.
-	-Afficher le niveau actuel à droite du plateau.
+	- Affichage de présentation au démarrage.
+	- Utilisation d'un algo de plus court chemin.
+	- Déplacement des fantômes en temps réel.
+	- Chaque fantôme a son comportement :
+		- 2 poursuivent directement pacman
+		- 1 ciblent 2 cases devant pacman
+		- 1 cible le point étant le symétrique d'un fantôme par
+		rapport à pacman.
+	
 	
 
