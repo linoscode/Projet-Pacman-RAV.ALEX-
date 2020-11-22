@@ -90,7 +90,7 @@ int game_over(Partie p);
 
 
 //Pour l'affichage
-#define FREQ 7
+#define FREQ 8
 #define LONG 800
 #define LARG 600
 

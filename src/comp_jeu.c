@@ -17,7 +17,7 @@ int demarrer_partie(Partie p )
 
   /* Déclaration des variables*/
   int touche; //Stock la touche préssée
-  p.tours_bonus=10; // Stock le nombre de tour restant en mode bonus
+  p.tours_bonus=40; // Stock le nombre de tour restant en mode bonus
   p.gameov=0; //Variable pour savoir s'il y'a gameover ou pas
 
   Pos dir_pacman = def;//On initialise la direction de pacman à immobile
