@@ -6,7 +6,7 @@ const Pos gauche  = {0,-1};
 const Pos droite  = {0, 1};
 const Pos def = {0, 0};
 
-/* Fonction qui permet de démarrer la partie et réunie tous les comportements du jeu*/
+/*Regroupe toutes les fonctions et démarre le jeu */
 int demarrer_partie(Partie p )
 {
   /* On affiche le plateau sur la fenêtre */
@@ -36,10 +36,7 @@ int demarrer_partie(Partie p )
 
       /*On assigne les cible de chaque fantome pour qu'ils essaient de manger
       pacman */
-      p.target[0]=target_pacman(p);
-      p.target[1]=target_devant_pacman(p, dir_pacman);
-      p.target[2]=target_oppose(p, dir_pacman, 0);
-      p.target[3]=target_pacman_clyde(p,3);
+      modeChasse(p,p.target,dir_pacman);
       /* On vérifie si pacman s'est fait mangé */
       p.gameov = game_over(p);
       /*On déplace tous les fantomes suivant les cibles précédemment définies*/
@@ -195,6 +192,7 @@ Pos deplacements_visuels(Partie p, char **plateau, Pos direction)
 
 }
 
+/*Permet de réafficher tous les bonus et pacgommes et compte le nombre de ceux-ci*/
 int rafraichir(Partie p) {
   int n=0;
   for(int i=0; i<p.L;i++)
@@ -261,6 +259,8 @@ void dessiner_plateau(Partie p, char **plateau)
 /* Fonctions modélisant les règles du jeu */
 /******************************************/
 
+/*Récupère la dernière touche pressée */
+
 int evenement_touche(int touche) {
   reinitialiser_evenements();
   traiter_evenements();
@@ -278,11 +278,19 @@ int evenement_touche(int touche) {
   return touche;
 }
 
+/*Définie les cibles des fantomes aléatoirement */
 void deplacements_aleatoire(Partie p,Pos *target) {
   for(int i = 0; i<NBFANTOMES;i++) {
     target[i].c=entier_aleatoire(p.C);
     target[i].l=entier_aleatoire(p.L);
   }
+}
+
+void modeChasse(Partie p,Pos * target,Pos dir_pacman) {
+  target[0]=target_pacman(p);
+  target[1]=target_devant_pacman(p, dir_pacman);
+  target[2]=target_oppose(p, dir_pacman, 0);
+  target[3]=target_pacman_clyde(p,3);
 }
 
 int game_over(Partie p)
@@ -316,6 +324,7 @@ Partie deplacer_fantome(Partie p)
   return p;
 }
 
+/*Permet de cibler la case qui est à l'opposé d'un autre fantome*/
 Pos target_oppose(Partie p, Pos dir,int i_fant)
 {
     Pos cible;
@@ -384,28 +393,7 @@ int isbonus(Partie p, Pos dir)
 }
 
 
-Pos touche2pos(int touche) {
-  Pos dir;
-  switch ( touche )
-  {
-    case SDLK_UP:
-      dir = haut;
-      break;
-    case SDLK_LEFT:
-      dir = gauche;
-      break;
-    case SDLK_DOWN:
-      dir = bas;
-      break;
-    case SDLK_RIGHT:
-      dir = droite;
-      break;
-    default:
-      dir = def;
-      break;
-  }
-  return dir;
-}
+
 
 
 Pos deplacer_pacman_plateau(Partie p,char **plateau,Pos direction) {
@@ -428,8 +416,7 @@ Pos deplacer_pacman_plateau(Partie p,char **plateau,Pos direction) {
   return p.pacman;
 }
 
-// DEPLACEMENT DES fantomes[i]
-
+/* Gère les déplacements des fantomes en fonction de la direction choisie */
 void deplacer_fantome_plateau(Partie p,Pos fantomes[], int i_fant, Pos direction)
 {
   if(fantomes[i_fant].c == p.C)
@@ -457,31 +444,13 @@ int nbpacgommes(Partie p) {
 	return p.nbpacgommes;
 }
 
-int areEqual(Pos p1, Pos p2) {
-  if(p1.c==p2.c && p2.l==p1.l) {
-    return 1;
-  }
-  return 0;
-}
 
-int i2dir(Pos dir) {
-  if(areEqual(dir,haut)) {
-    return 0;
-  }
-  else if(areEqual(dir,droite)) {
-    return 1;
-  }
-  else if(areEqual(dir,bas)) {
-    return 2;
-  }
-  else if(areEqual(dir,gauche)) {
-    return 3;
-  }
-  return 2;
-}
+
 
 void direction_possibles(Partie p,int i_fant, Pos dir_prec[], Pos dir_pos[][4])
 {
+  /*Si vérifie si il y'a un mur ou on se trouve aux limites du plateau pour valider
+  ou invalider chaque direction */
   if(p.fantomes[i_fant].l==0 || p.plateau[p.fantomes[i_fant].l-1][p.fantomes[i_fant].c]=='*') {
     dir_pos[i_fant][0]=def;
   } else {
@@ -505,25 +474,54 @@ void direction_possibles(Partie p,int i_fant, Pos dir_prec[], Pos dir_pos[][4])
   } else {
    dir_pos[i_fant][3]=gauche;
   }
+  /*On enlève la direction précédente des directions possibles*/
   dir_pos[i_fant][i2dir(dir_prec[i_fant])]=def;
 
 }
 
 /******************************************/
-/* Fonctions de calculs                 */
+/* Fonctions de calculs                   */
 /******************************************/
 
+int areEqual(Pos p1, Pos p2) {
+  if(p1.c==p2.c && p2.l==p1.l) {
+    return 1;
+  }
+  return 0;
+}
+
+/*Permet de récupérer l'indice du tableau dir_pos qui correspond
+à une directions une direction donnée*/
+int i2dir(Pos dir) {
+  if(areEqual(dir,haut)) {
+    return 0;
+  }
+  else if(areEqual(dir,droite)) {
+    return 1;
+  }
+  else if(areEqual(dir,bas)) {
+    return 2;
+  }
+  else if(areEqual(dir,gauche)) {
+    return 3;
+  }
+  return 2;
+}
+
+
+/* Converti les coordonnées sur le plateau en coordonnées sur la fenêtre*/
 Point pos2point(Pos p,int taille)
 {
     Point point = {p.c*taille , p.l*taille};
     return point;
 }
 
+/*Permet de récupérer le coin haut gauche pour dessiner les rectangles
+représentants les fantomes                                             */
 Point pos2coin(Pos p,int taille) {
   Point point = {p.c*taille + TFANTOME/2 , p.l*taille + TFANTOME/2};
   return point;
 }
-// DEFINITION POS2COIN (rectangles)
 
 Point pos2centre(Pos p, int taille)
 {
@@ -594,16 +592,42 @@ Pos opposite(Pos d) {
   else if(areEqual(d,bas)) {
     return haut;
   }
-  else if(areEqual(d,gauche)) {
+  else if(areEqual(d,gauche))
+  {
     return droite;
   }
-  else if(areEqual(d,droite)) {
+  else if(areEqual(d,droite))
+  {
     return gauche;
-  } else if(areEqual(d,def)) {
-    printf("No decision made\n");
+  }
+  else if(areEqual(d,def))
+  {
     return def;
   }
   return def;
+}
+
+Pos touche2pos(int touche) {
+  Pos dir;
+  switch ( touche )
+  {
+    case SDLK_UP:
+      dir = haut;
+      break;
+    case SDLK_LEFT:
+      dir = gauche;
+      break;
+    case SDLK_DOWN:
+      dir = bas;
+      break;
+    case SDLK_RIGHT:
+      dir = droite;
+      break;
+    default:
+      dir = def;
+      break;
+  }
+  return dir;
 }
 
 
