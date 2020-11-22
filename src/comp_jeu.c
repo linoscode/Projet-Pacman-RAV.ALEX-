@@ -56,7 +56,7 @@ int demarrer_partie(Partie p ) {
 
   // Algorithme du jeu :
   int touche;
-  int tours_bonus=0;
+  int tours_bonus=20;
   int gameov=0;
 
   Pos dir_pacman = {0,0};
@@ -73,7 +73,7 @@ int demarrer_partie(Partie p ) {
     else if(touche_a_ete_pressee(SDLK_RIGHT))
       { touche = SDLK_RIGHT; }
     else {
-      touche = -1;
+      touche = touche;
     }
 
     dir_pacman = touche2pos(touche);
@@ -96,7 +96,6 @@ int demarrer_partie(Partie p ) {
     }
     p.nbpacgommes=rafraichir(p);
     p.pacman = deplacements_visuels(p, p.plateau, dir_pacman);
-    printf("%d\n", p.nbpacgommes);
     gameov = game_over(p);
     if(p.nbpacgommes==0)
       break;
@@ -207,15 +206,16 @@ Pos deplacements_visuels(Partie p, char **plateau, Pos direction) {
   while (!pdone || !fdone) {
     for(int i=0; i<NBFANTOMES;i++) {
       if (p_fant[i].x != p_fant_cible[i].x || p_fant[i].y != p_fant_cible[i].y) {
+          dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, noir);
           if( p_fant[i].x > p.C*CASE ) {
             p_fant[i].x=0;
           }
-          if( p_fant[i].x < 0 ) {
+          else if( p_fant[i].x < 0 ) {
             p_fant[i].x=p.C*CASE;
-          }
-          dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, noir);
+          } else {
           p_fant[i].x += p.dir_fant[i].c;
           p_fant[i].y += p.dir_fant[i].l;
+          }
           dessiner_rectangle(p_fant[i], TFANTOME , TFANTOME, pink);
     } else {
       fdone = 1;
@@ -336,13 +336,18 @@ Pos deplacer_pacman_plateau(Partie p,char **plateau,Pos direction) {
 
 void deplacer_fantome_plateau(Partie p,Pos fantomes[], int i_fant, Pos direction)
 {
-  if(fantomes[i_fant].c == p.C-1) {
+  if(fantomes[i_fant].c == p.C)
+  {
     fantomes[i_fant].c=1;
-  } else if(fantomes[i_fant].l == 0 ) {
-    fantomes[i_fant].l=p.C-1;
-  } else {
-  fantomes[i_fant].c += direction.c;
-  fantomes[i_fant].l += direction.l;
+  }
+  else if(fantomes[i_fant].c == 0 )
+  {
+    fantomes[i_fant].c=p.C-1;
+  }
+  else
+  {
+    fantomes[i_fant].c += direction.c;
+    fantomes[i_fant].l += direction.l;
   }
 }
 

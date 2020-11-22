@@ -82,7 +82,7 @@ int game_over(Partie p);
 
 
 //Pour l'affichage
-#define FREQ 5
+#define FREQ 7
 #define LONG 800
 #define LARG 600
 
